@@ -44,8 +44,12 @@ def stimulus_parser(stimulus, stimuli_dict, session_dict):
 		pass
 	return(stimuli_dict, session_dict)
 
-def camera_parser(session, cam_list):
-	pass
+def camera_parser(session, session_dict, cam1_list, cam2_list, date_input, monkey_input):
+	
+	for t_index, trial in enumerate(cam1_list):
+		# trial_data = session['ML'][trial]
+		pass
+	return session_dict
 
 def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 	'''Parses out session data
@@ -117,7 +121,7 @@ def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 	# to make sure that it holds in all cases
 	for t_index, trial in enumerate(trial_list):
 
-		# skip cam data
+		# skip cam data (redundant check)
 		if 'Cam' in trial:
 			continue
 

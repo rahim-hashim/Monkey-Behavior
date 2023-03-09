@@ -59,10 +59,10 @@ def session_lick(df: pd.DataFrame, session_obj: Session):
       axarr1[df_index].axvline(change_trial, c='grey', alpha=0.5)
 
     # Blink Plot
-    blink = df_fractal['blink_in_window']
+    blink = df_fractal['pupil_binary_zero']
     blink = [a+0.1 if a==1 else a-0.1 for a in blink]
 
-    blink_raster_window = df_fractal['blink_in_window'].tolist()
+    blink_raster_window = df_fractal['pupil_binary_zero'].tolist()
     x2 = np.arange(len(blink_raster_window))
     window_size = round_up_to_odd(int(len(np.array(blink_raster_window))/15))
     y2 = signal.savgol_filter(blink_raster_window, int(window_size), poly_order)

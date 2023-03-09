@@ -22,7 +22,7 @@ def ks_test(df, session_obj):
 	"""
 	LABELS = list(session_obj.valence_labels.values())
 	num_valences = len(df['valence'].unique())
-	lick_prob, blink_prob, lick_dur, blink_dur = \
+	lick_prob, blink_prob, lick_dur, DEM_dur, blink_dur = \
 				generate_data_dict(df, session_obj)
 	valence_combinations = list(combinations(range(num_valences), 2))
 	measure_data = [lick_dur, blink_dur]

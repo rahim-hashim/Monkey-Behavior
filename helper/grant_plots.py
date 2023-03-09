@@ -56,43 +56,43 @@ def significance_test(measure_duration_list, outcome_mag_list, measure):
 												'{} Std: {}'.format(measure, round(np.std(mag_2), 3)), 
 												'Trials: {}'.format(len(mag_2)))
 
+def get_param_labels(session_obj, param):
+	params_dict = defaultdict(list)
+	gs = gridspec.GridSpec(2, 2, width_ratios=[1, 1.5], height_ratios=[1, 1])
+	if 'lick' in param:
+		color = ['#D2DCD3', '#91BFBC', '#28398D']
+		mag = 'reward_mag'
+		outcome = 'Reward'
+		measure = 'Lick'
+		window_threshold = session_obj.window_lick
+		fig_dimensions = [gs[:, 1], gs[0, 0], gs[1, 0]]
+	else: 
+		color = ['#D2DCD3', '#ED8C8C', '#D61313']
+		mag = 'airpuff_mag'
+		outcome = 'Airpuff'
+		measure = 'DEM' if param == 'blink_duration_offscreen' else 'Blink'
+		fig_dimensions = [gs[:, 0], gs[0, 1], gs[1, 1]]
+		window_threshold = session_obj.window_blink
+	return color, mag, outcome, measure, window_threshold, fig_dimensions
+
 def grant_plots(session_df, session_obj):
 
-	gs = gridspec.GridSpec(2, 2, width_ratios=[1, 1.5], height_ratios=[1, 1])
-	fig_dimensions = [[gs[:, 1], gs[0, 0], gs[1, 0]],
-										[gs[:, 0], gs[0, 1], gs[1, 1]]]
-	plot_params = ['lick_duration', 'blink_duration_offscreen']
-	mag_list = ['reward_mag', 'airpuff_mag']
-
-	COLORS = [['#D2DCD3', '#91BFBC', '#28398D'],
-						['#D2DCD3', '#ed8c8c', '#d61313']]
-
-	outcomes = ['Reward', 'Airpuff']
-	measures = ['Lick', 'Blink']
+	plot_params = ['lick_duration', 'blink_duration_offscreen', 'pupil_raster_window_avg']
 
 	for plot_index, plot_param in enumerate(plot_params):
-		outcome = outcomes[plot_index]
-		measure = measures[plot_index]
+		# Get plot parameters
+		color, mag, outcome, measure, window_threshold, fig_dimensions = get_param_labels(session_obj, plot_param)
+
 		set_plot_params(FONT=12,
 										AXES_TITLE=16,
 										AXES_LABEL=18, 
 										TICK_LABEL=12, 
 										LEGEND=10, 
 										TITLE=20)
-		params = {"ytick.color" : "w",
-          		"xtick.color" : "w",
-          		"axes.labelcolor" : "w",
-          		"axes.edgecolor" : "w",
-							"axes.titlecolor" : "w"}
-		# plt.rcParams.update(params)
+
 		fig = plt.figure(figsize=(10, 6))
 
-
 		FIGURE_SAVE_PATH = session_obj.figure_path
-		if 'lick' in plot_param:
-			WINDOW_THRESHOLD = session_obj.window_lick
-		else:
-			WINDOW_THRESHOLD = session_obj.window_blink
 		TRIAL_THRESHOLD = 20
 		session_df_correct = session_df[session_df['correct'] == 1]
 		# only include trials after subject has seen fractal <TRIAL_THRESHOLD> number of times
@@ -101,20 +101,20 @@ def grant_plots(session_df, session_obj):
 		session_df_threshold = session_df_count[session_df_count['block'] <= 2]
 
 		# Collapsed on conditions
-		ax1 = fig.add_subplot(fig_dimensions[plot_index][0])
+		ax1 = fig.add_subplot(fig_dimensions[0])
 		ax1.set_title('Collapsed Across Session', fontsize=18)
 
 		# Condition 1
-		ax2 = fig.add_subplot(fig_dimensions[plot_index][1])
+		ax2 = fig.add_subplot(fig_dimensions[1])
 		ax2.set_title('Pre-Switch', fontsize=16)
 
 		# Condition 2
-		ax3 = fig.add_subplot(fig_dimensions[plot_index][2])
+		ax3 = fig.add_subplot(fig_dimensions[2])
 		ax3.set_title('Post-Switch', fontsize=16)
 		axarr = [ax1, ax2, ax3]
 		TRIAL_THRESHOLD = 10
 
-		outcome_mag_list = sorted(session_df_threshold[mag_list[plot_index]].unique())
+		outcome_mag_list = sorted(session_df_threshold[mag].unique())
 		conditions = [[1, 2], [1], [2]]
 		# Collapsed on conditions | Condition 1 | Condition 2
 		for ax_index, condition in enumerate(conditions):
@@ -125,7 +125,7 @@ def grant_plots(session_df, session_obj):
 			# Reward | Airpuff
 			for df_index, outcome_mag in enumerate(outcome_mag_list):
 
-				df = df_condition[df_condition[mag_list[plot_index]] == outcome_mag]
+				df = df_condition[df_condition[mag] == outcome_mag]
 				measure_duration = df[plot_param].tolist()
 				measure_data_mean = np.nanmean(measure_duration)
 				measure_duration_list.append(measure_duration)
@@ -138,7 +138,7 @@ def grant_plots(session_df, session_obj):
 			axarr[ax_index].bar(range(len(measure_mean_list)), 
 													measure_mean_list,
 													# yerr=measure_std_list,
-													color=COLORS[plot_index], linewidth=2)
+													color=color, linewidth=2)
 			axarr[ax_index].set_xticks(range(len(measure_mean_list)))
 			outcome_mag_labels = ['none', 'small', 'large']
 			axarr[ax_index].set_xticklabels(outcome_mag_labels)
@@ -148,7 +148,7 @@ def grant_plots(session_df, session_obj):
 		fig.tight_layout()
 		# set facecolor to black:
 		fig.set_facecolor("k")
-		grant_title = 'grant_{}.png'.format(outcomes[plot_index].lower())
+		grant_title = 'grant_{}.png'.format(measure.lower())
 		img_save_path = os.path.join(FIGURE_SAVE_PATH, grant_title)
 		print('  {} saved.'.format(grant_title))
 		plt.savefig(img_save_path, dpi=150, bbox_inches='tight', pad_inches = 0.1)

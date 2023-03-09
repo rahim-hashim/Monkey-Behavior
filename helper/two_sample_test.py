@@ -18,9 +18,10 @@ from plot_helper import smooth_plot, round_up_to_odd, moving_avg, moving_var, se
 def generate_data_dict(session_df, session_obj):
 
 	lick_data_probability = defaultdict(list)
-	blink_data_probability = defaultdict(list)
+	blink_probability = defaultdict(list)
 	lick_data_duration = defaultdict(list)
-	blink_data_duration = defaultdict(list)
+	DEM_duration = defaultdict(list)
+	blink_duration = defaultdict(list)
 
 	PRE_CS = 50 # time before CS-on (for moving average calculation)
 	FIGURE_SAVE_PATH = session_obj.figure_path
@@ -50,12 +51,9 @@ def generate_data_dict(session_df, session_obj):
 			else:
 				lick_data_probability[df_index].append(0)
 
-			## counts if there was any blink in the specified time window
-			blink_data_window = df['blink_count_window'].iloc[t_index]
-			if 1 in blink_data_window:
-				blink_data_probability[df_index].append(1)
-			else:
-				blink_data_probability[df_index].append(0)
+			# counts if there was any blink (pupil=0) in the specified time window
+			pupil_binary_zero = df['pupil_binary_zero'].iloc[t_index]
+			blink_probability[df_index].append(pupil_binary_zero)
 
 			# Lick/Blink Duration
 			lick_raw = df['lick'].iloc[t_index]
@@ -63,10 +61,13 @@ def generate_data_dict(session_df, session_obj):
 			lick_data_voltage_mean = np.mean(lick_data_voltage)
 			lick_data_duration[df_index].append(lick_data_voltage_mean)
 
-			blink_raw = df['blink_duration_offscreen'].iloc[t_index]
-			blink_data_duration[df_index].append(blink_raw)
+			DEM_raw = df['blink_duration_offscreen'].iloc[t_index]
+			DEM_duration[df_index].append(DEM_raw)
+
+			blink_raw = df['pupil_raster_window_avg'].iloc[t_index]
+			blink_duration[df_index].append(blink_raw)
 	
-	return lick_data_probability, blink_data_probability, lick_data_duration, blink_data_duration
+	return lick_data_probability, blink_probability, lick_data_duration, DEM_duration, blink_duration
 
 def two_sample_test(data_type, data_raster, condition, session_obj, direction='forwards'):
 	'''Lick/Blink Probability 2-Sample T-Test'''
@@ -183,12 +184,14 @@ def two_sample_test(data_type, data_raster, condition, session_obj, direction='f
 	f.tight_layout()
 	img_save_path = os.path.join(FIGURE_SAVE_PATH, 't_test_{}_{}.png'.format(data_type, condition))
 	f.savefig(img_save_path, dpi=150, bbox_inches='tight', pad_inches = 0.1)
+	plt.show()
 	plt.close('all')
 
 def t_test_moving_avg(df, session_obj, condition):
 	# T-Test Plots
-	lick_data_probability, blink_data_probability, lick_data_duration, blink_data_duration = generate_data_dict(df, session_obj)
+	lick_data_probability, blink_probability, lick_data_duration, DEM_duration, blink_duration =\
+		 		 generate_data_dict(df, session_obj)
 	set_plot_params(FONT=10, AXES_TITLE=11, AXES_LABEL=10, TICK_LABEL=10, LEGEND=8, TITLE=14)
 	two_sample_test('lick-duration', lick_data_duration, condition, session_obj)
-	two_sample_test('blink-duration', blink_data_duration, condition, session_obj)
-	two_sample_test('blink-probability', blink_data_probability, condition, session_obj)	
+	two_sample_test('DEM-duration', DEM_duration, condition, session_obj)
+	two_sample_test('blink-duration', blink_duration, condition, session_obj)	

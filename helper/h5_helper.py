@@ -9,19 +9,41 @@ from datetime import date, timedelta
 from collections import defaultdict
 from IPython.display import display
 
-from session_parse_helper import session_parser
+from session_parse_helper import session_parser, camera_parser
 
 def h5_pull(current_dir):
   """Look for all .h5 extension files in directory"""
   print('Pulling \'.h5\' files...')
   h5_filenames = [f for f in current_dir if f[-3:] == '.h5']
-  print('Complete: {} \'.h5\' files pulled'.format(len(h5_filenames)))
+  print('  Complete: {} \'.h5\' files pulled'.format(len(h5_filenames)))
   return h5_filenames
 
 def h5_load(file_name):
   """Loads h5 datasets into a python object"""
   f = h5py.File(file_name, 'r')
   return f
+
+def trial_cam_match(trial_list, cam1_list=None, cam2_list=None):
+  """Checks for trial and camera number mismatch"""
+  mistmatch_flag = False
+  cams_list = []
+  if cam1_list is not None:
+    print('  Cam 1 assigned')
+    cams_list.append(cam1_list)
+  if cam2_list is not None:
+    print('  Cam 2 assigned')
+    cams_list.append(cam2_list)
+  for trial in trial_list:
+    trial_no = int(trial[5:])
+    for cam in cams_list:
+      cam_no = int(cam[trial_no-1][5:])
+      if trial_no != cam_no:
+        print('  Trial and Camera number mismatch: {} and {}'.format(trial_no, cam_no))
+        mistmatch_flag = True
+  if mistmatch_flag:
+    print('  Check for trial and camera number mismatch')
+  else:
+    print('  Trial and Camera numbers matched.')
 
 def h5_parse(f):
   """Parses out groups and subgroups from .h5 tree
@@ -33,24 +55,35 @@ def h5_parse(f):
         - 'MLConfig'
         - 'TrialResults'
         - 'Trialn'
+        - 'Cam1n' (if assigned) 
+        - 'Cam2n' (if assigned) 
 
   Returns:
     Each subgroup (listed in Args) as a unique variable
   """
+  print('Parsing .h5 file...')
   trial_list = []
-  cam_list = []
+  cam1_list = []
+  cam2_list = []
+  # Group = 'ML'
   for group in list(f.keys()):
+    # Subgroup = 'MLConfig', 'TrialResults', 'Trialn', 'Cam1n', 'Cam2n'
     for subgroup in list(f[group].keys()):
       try:
         trial_num = int(subgroup[5:]) # trials all end in numbers (i.e. Trial1, Trial2,...Trialn)
         if 'Trial' in subgroup:
           trial_list.append(subgroup)
+        else:
+          [cam1_list.append(subgroup) if 'Cam1' in subgroup else cam2_list.append(subgroup)]
       except:
-          cam_list.append(subgroup)
-  print('  Total number of trials: {}'.format(len(trial_list)))
+          continue
+  # check for trial and camera number mismatch
+  trial_cam_match(trial_list, cam1_list, cam2_list)
+
+  print('Total number of trials: {}'.format(len(trial_list)))
   ml_config = f['ML']['MLConfig']
   trial_record = f['ML']['TrialRecord']
-  return ml_config, trial_record, trial_list
+  return ml_config, trial_record, trial_list, cam1_list, cam2_list
 
 def config_viewer(ml_config):
   """widget manager"""
@@ -114,7 +147,7 @@ def pickler(save_df, save_path, session_df, monkey_input, experiment_name,
         pickle.dump(session_dict, handle, protocol=4) # google colab only supports protocol 4
         t1 = time.time()
         total_t = round(t1-t0, 4)
-        print('    Total time to pickle: {} sec'.format(total_t))
+        print('  Total time to pickle: {} sec'.format(total_t))
 
 def date_selector(start_date, end_date):
   """Selects dates from colab forms input"""
@@ -195,9 +228,12 @@ def h5_to_df(current_path, target_path, h5_filenames, start_date, end_date, monk
   if python_converted_files:
     for f_index, f in enumerate(python_converted_files):
       print('  {}'.format(f))
-      ml_config, trial_record, trial_list = h5_parse(f)
+      ml_config, trial_record, trial_list, cam1_list, cam2_list = h5_parse(f)
+      # parse session data
       session_dict, error_dict, behavioral_code_dict = \
         session_parser(f, trial_list, trial_record, dates_array[f_index], monkey_input)
+      # parse camera data
+      session_dict = camera_parser(f, session_dict, cam1_list, cam2_list, dates_array[f_index], monkey_input)
       if f_index == 0:
         session_df = pd.DataFrame.from_dict(session_dict) # convert dictionary to pd.DataFrame
       else:
