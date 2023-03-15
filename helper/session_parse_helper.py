@@ -1,6 +1,5 @@
 import re
 import numpy as np
-from tqdm import tqdm
 from tqdm.auto import tqdm
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -45,10 +44,24 @@ def stimulus_parser(stimulus, stimuli_dict, session_dict):
 	return(stimuli_dict, session_dict)
 
 def camera_parser(session, session_dict, cam1_list, cam2_list, date_input, monkey_input):
-	
-	for t_index, trial in enumerate(cam1_list):
-		# trial_data = session['ML'][trial]
-		pass
+	print('Parsing camera data...')
+	for c_index, cam_list in enumerate([cam1_list, cam2_list]):
+		for t_index, trial in enumerate(tqdm(cam_list)):
+			cam_data = session['ML'][trial]
+			# name of camera trial file
+			cam_trial_name_full = cam_data['Filename'][...].tolist().decode()
+			cam_trial_name = cam_trial_name_full.split('\\')[-1].split('.')[0]
+			trial_name_column = 'cam{}_trial_name'.format(c_index+1)
+			session_dict[trial_name_column].append(cam_trial_name)
+			# data from camera trial file
+			cam_trial_file = cam_data['File'][0]
+			trial_time_column = 'cam{}_trial_time'.format(c_index+1)
+			session_dict[trial_time_column].append(cam_trial_file)
+			# time of frames in camera trial file
+			cam_trial_time = cam_data['Time'][0]
+			trial_cam_column = 'cam{}_video'.format(c_index+1)
+			session_dict[trial_cam_column].append(cam_trial_time)
+	print('  Complete.')
 	return session_dict
 
 def session_parser(session, trial_list, trial_record, date_input, monkey_input):
@@ -119,8 +132,8 @@ def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 
 	# trial_list is ordered already (Trial1...TrialN) but we should put in some checks
 	# to make sure that it holds in all cases
-	for t_index, trial in enumerate(trial_list):
-
+	print('Parsing session data...')
+	for t_index, trial in enumerate(tqdm(trial_list)):
 		# skip cam data (redundant check)
 		if 'Cam' in trial:
 			continue
@@ -211,8 +224,6 @@ def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 		eye_data = x.view(np.float64).reshape(x.shape+(-1,))
 		session_dict['eye_x'].append(eye_data[0].flatten())
 		session_dict['eye_y'].append(eye_data[1].flatten())
-		# session_dict['eye_x'].append(eye_data[0])
-		# session_dict['eye_y'].append(eye_data[1])
 
 		# pupil data
 		x = np.array(trial_data['AnalogData']['EyeExtra'])
@@ -266,7 +277,7 @@ def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 				print('  {} removed from session_dict'.format(key))
 		except:
 			pass
-
+	print('  Complete.')
 	print('    Correct trials: {}'.format(np.sum(session_dict['correct'])))
 	print('    Errored trials: {}'.format(np.sum(session_dict['error'])))
 

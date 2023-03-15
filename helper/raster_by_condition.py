@@ -27,7 +27,7 @@ def epoch_time(df):
 		outcome_end_min (int): minimum Outcome duration
 	"""
 	
-	verbose = True # set to True to print out average/min values
+	verbose = False # set to True to print out average/min values
 
 	# CS Epoch
 	cs_duration_hist = np.array(df['CS Off'].tolist()) - np.array(df['CS On'].tolist())

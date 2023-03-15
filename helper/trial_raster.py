@@ -59,7 +59,7 @@ def trial_raster(df, session_obj):
 			trace_end_extra = fractal_df['Trace End'].iloc[i] + POST_TRACE
 			lick_raster = fractal_df['lick_raster'].iloc[i]
 			lick_raster_time = lick_raster[cs_on:trace_end_extra]
-			blink_raster = fractal_df['blink_raster'].iloc[i]
+			blink_raster = fractal_df['pupil_raster'].iloc[i]
 			blink_raster_time = blink_raster[cs_on:trace_end_extra]
 			lick_raster_window = []
 			blink_raster_window = []
