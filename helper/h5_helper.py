@@ -7,8 +7,9 @@ import pandas as pd
 import ipywidgets as widgets
 from datetime import date, timedelta
 from collections import defaultdict
+# Custom modules
+from add_fields import add_fields
 from IPython.display import display
-
 from session_parse_helper import session_parser, camera_parser
 
 def h5_pull(current_dir):

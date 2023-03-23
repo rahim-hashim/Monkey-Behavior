@@ -184,6 +184,7 @@ def two_sample_test(data_type, data_raster, condition, session_obj, direction='f
 	f.tight_layout()
 	img_save_path = os.path.join(FIGURE_SAVE_PATH, 't_test_{}_{}.png'.format(data_type, condition))
 	f.savefig(img_save_path, dpi=150, bbox_inches='tight', pad_inches = 0.1)
+	print('  t_test_{}_{}.png saved.'.format(data_type, condition))
 	plt.show()
 	plt.close('all')
 

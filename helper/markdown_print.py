@@ -244,13 +244,13 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 		t_test_lick_img_path_str = '<img src="{}">\n'.format(t_test_lick_img_path)
 		md_list.append(t_test_lick_img_path_str)
 		f.write(t_test_lick_img_path_str)
-		## Blink Duration
-		t_test_blink_img_path = os.path.join('..', 'figures', date_formatted, 't_test_blink-duration_{}.png'.format(condition))
+		## DEM Duration
+		t_test_blink_img_path = os.path.join('..', 'figures', date_formatted, 't_test_DEM-duration_{}.png'.format(condition))
 		t_test_blink_img_path_str = '<img src="{}">\n'.format(t_test_blink_img_path)
 		md_list.append(t_test_blink_img_path_str)
 		f.write(t_test_blink_img_path_str)
 		## Blink Probability
-		t_test_blink_img_path = os.path.join('..', 'figures', date_formatted, 't_test_blink-probability_{}.png'.format(condition))
+		t_test_blink_img_path = os.path.join('..', 'figures', date_formatted, 't_test_blink-duration_{}.png'.format(condition))
 		t_test_blink_img_path_str = '<img src="{}">\n'.format(t_test_blink_img_path)
 		md_list.append(t_test_blink_img_path_str)
 		f.write(t_test_blink_img_path_str)

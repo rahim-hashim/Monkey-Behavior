@@ -19,8 +19,8 @@ TASK = 'Probabalistic_Airpuff_4x2'
 path_obj = Path(ROOT, EXPERIMENT, TASK)
 
 # Specifying date/monkey/task
-start_date = '2023-03-14'
-end_date = '2023-03-14'
+start_date = '2023-03-22'
+end_date = '2023-03-22'
 monkey_input = 'Aragorn'
 reprocess_data = True
 save_df = True
@@ -53,7 +53,7 @@ for date in sorted(session_df['date'].unique(), reverse=False):
 
 	plt.style.use('dark_background')
 	from image_diff import image_diff
-	FIGURE_SAVE_PATH = image_diff(session_df_date, #change to session_df if combine_dates = True
+	FIGURE_SAVE_PATH = image_diff(session_df_date, #change to session_df if combine_dates = False
 																session_obj,
 																path_obj,
 																combine_dates=False)
@@ -67,17 +67,20 @@ for date in sorted(session_df['date'].unique(), reverse=False):
 	# session_df_date = generate_videos(session_df_date,
 	# 													 	 path_obj, 
 	# 													 	 session_obj,
-	# 													 	 delay_only=True)
+	# 													 	 delay_only=False)
 
 	# Remove failure trials (i.e. break fixation)
 	session_df_correct = session_df_date[session_df_date['correct'] == 1]
 	session_df_correct = session_df_correct.iloc[:-1]
 
+	from duration_hist import epoch_hist
+	epoch_hist(session_df_correct, session_obj)
+
 	from lick_blink_relationship import lick_blink_linear
 	lick_blink_linear(session_df_correct, session_obj)
 
 	from session_performance import session_performance
-	session_performance(session_df_date, behavioral_code_dict, True, session_obj)
+	session_performance(session_df_date, behavioral_code_dict, False, session_obj)
 
 	from session_timing import plot_session_timing
 	plot_session_timing(session_df_date, session_obj)
