@@ -55,14 +55,18 @@ def valence_assignment(row):
 	if row['reward_mag'] == 0:
 		if row['airpuff_mag'] == 1:
 			valence = -1
-		else:
+		elif row['airpuff_mag'] == 0.5:
 			valence = -0.5
+		elif row['airpuff_mag'] == 0:
+			valence = 0
 	# reward
 	else:
 		if row['reward_mag'] == 1:
 			valence = 1
-		else:
+		elif row['reward_mag'] == 0.5:
 			valence = 0.5
+		elif row['reward_mag'] == 0:
+			valence = 0
 	return valence
 
 def trace_to_raster(trace_data, threshold):

@@ -17,9 +17,14 @@ class Path:
 		# Task Path
 		self.task_root = os.path.join(ROOT, 'tasks', EXPERIMENT)
 		list_tasks = os.listdir(self.task_root)
+		task_flag = False 
 		for task_type in list_tasks:
 			if TASK in task_type:
 				self.TASK_PATH = os.path.join(self.task_root, task_type)
+				task_flag = True
+				print(f'Task found in tasks folder: {self.TASK_PATH}')
+		if task_flag == False:
+			print(f'Task not found in tasks folder: {self.task_root}')
 
 		self.current_dir = os.listdir(self.CURRENT_PATH)
 

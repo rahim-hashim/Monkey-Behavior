@@ -48,11 +48,11 @@ def measure_hist(df, session_obj):
 	"""
 	valence_list = sorted(df['valence'].unique(), reverse=True)
 	# kde plot
-	f1, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5), 
+	f1, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5), 
 																sharex=True,
 																sharey=True)
 	# cde plot
-	f2, (ax3, ax4) = plt.subplots(1, 2, figsize=(10, 5),
+	f2, (ax4, ax5, ax6) = plt.subplots(1, 3, figsize=(15, 5),
 																sharex=True,
 																sharey=True)
 	# histogram plot
@@ -64,7 +64,7 @@ def measure_hist(df, session_obj):
 	x_label = [round(x*100) for x in x]
 	for v_index, valence in enumerate(valence_list):
 		df_valence = df[df['valence'] == valence]
-		# lick
+		# Lick
 		lick_data = np.array(df_valence['lick_duration'])
 		sns.kdeplot(ax=ax1,
 								data=lick_data,  
@@ -73,15 +73,12 @@ def measure_hist(df, session_obj):
 								fill=True,
 								linewidth=2,
 								cut=0)
-		sns.ecdfplot(ax=ax3,
+		sns.ecdfplot(ax=ax4,
 								 data=lick_data,
 								 color=COLORS[valence],
 								 label=LABELS[valence],
 								 linewidth=2)
-		# ax5.hist(lick_data, histtype='barstacked', alpha=0.5, bins=20, 
-		# 				 color=COLORS[v_index], label=LABELS[valence])
-		# blink
-		blink_data = np.array(df_valence['blink_duration_offscreen'])
+		# DEM
 		sns.kdeplot(ax=ax2,
 								data=df_valence,
 								x='blink_duration_offscreen',  
@@ -90,32 +87,50 @@ def measure_hist(df, session_obj):
 								fill=True,
 								linewidth=2,
 								cut=0)
-		sns.ecdfplot(ax=ax4,
+		sns.ecdfplot(ax=ax5,
 								 data=df_valence,
 								 x='blink_duration_offscreen',
 								 color=COLORS[valence],
 								 label=LABELS[valence],
 								 linewidth=2)
-		# ax6.hist(blink_data, histtype='bar', alpha=0.5, bins=20, 
-		# 				 color=COLORS[valence], label=LABELS[valence])
+		# Blink
+		sns.kdeplot(ax=ax3,
+								data=df_valence,
+								x='pupil_raster_window_avg',  
+								color=COLORS[valence], 
+								label=LABELS[valence],
+								fill=True,
+								linewidth=2,
+								cut=0)
+		sns.ecdfplot(ax=ax6,
+								 data=df_valence,
+								 x='pupil_raster_window_avg',
+								 color=COLORS[valence],
+								 label=LABELS[valence],
+								 linewidth=2)
+		
 	ax1.set_xticks(x)
 	ax1.set_xticklabels(x_label)
 	ax1.set_xlabel('Percent of Trial Licking', fontsize=16)
 	ax1.set_ylabel('Density', fontsize=16)
-	ax2.set_xlabel('Percent of Trial Blinking', fontsize=16)
+	ax2.set_xlabel('Percent of Trial DEM', fontsize=16)
+	ax3.set_xlabel('Percent of Trial Blinking', fontsize=16)
 	ax1.legend(loc='upper left')
 	ax2.legend(loc='upper right')
+	ax3.legend(loc='upper right')
 	img_save_path = os.path.join(FIGURE_SAVE_PATH, 'lick_blink_hist')
 	f1.savefig(img_save_path, dpi=150)
 	print('  lick_blink_hist.png saved.')
 
-	ax3.set_xticks(x)
-	ax3.set_xticklabels(x_label)
-	ax3.set_xlabel('Percent of Trial Licking', fontsize=16)
-	ax3.set_ylabel('Proportion', fontsize=16)
-	ax4.set_xlabel('Percent of Trial Blinking', fontsize=16)
-	ax3.legend(loc='upper left')
-	ax4.legend(loc='lower right')
+	ax4.set_xticks(x)
+	ax4.set_xticklabels(x_label)
+	ax4.set_xlabel('Percent of Trial Licking', fontsize=16)
+	ax4.set_ylabel('Proportion', fontsize=16)
+	ax5.set_xlabel('Percent of Trial DEM', fontsize=16)
+	ax6.set_xlabel('Percent of Trial Blinking', fontsize=16)
+	ax4.legend(loc='upper left')
+	ax5.legend(loc='lower right')
+	ax6.legend(loc='lower right')
 	img_save_path = os.path.join(FIGURE_SAVE_PATH, 'lick_blink_cdf')
 	f2.savefig(img_save_path, dpi=150)
 	print('  lick_blink_cdf.png saved.')

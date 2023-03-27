@@ -48,7 +48,7 @@ def session_lick(df: pd.DataFrame, session_obj: Session):
     lick_raster_window = list(map(np.mean, lick_raster_window))
     x1 = np.arange(len(lick_raster_window))
     window_size = round_up_to_odd(int(len(np.array(lick_raster_window))/15))
-    poly_order = 3
+    poly_order = 2
     y1 = signal.savgol_filter(lick_raster_window, int(window_size), poly_order)
     axarr1[df_index].plot(np.array(x1), y1, linewidth=3, label = LABELS[df_index], color=COLORS[df_index])
     axarr1[df_index].scatter(np.array(x1), lick, s=4, color=COLORS[df_index])

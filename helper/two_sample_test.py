@@ -25,7 +25,7 @@ def generate_data_dict(session_df, session_obj):
 
 	PRE_CS = 50 # time before CS-on (for moving average calculation)
 	FIGURE_SAVE_PATH = session_obj.figure_path
-	COLORS = session_obj.colors
+	COLORS = session_obj.valence_colors
 	WINDOW_THRESHOLD_LICK = session_obj.window_lick
 	
 	valence_list = sorted(session_df['valence'].unique(), reverse=True)
@@ -47,58 +47,64 @@ def generate_data_dict(session_df, session_obj):
 			## counts if there was any lick in the specified time window
 			lick_data_window = df['lick_count_window'].iloc[t_index]
 			if 1 in lick_data_window:
-				lick_data_probability[df_index].append(1)
+				lick_data_probability[valence].append(1)
 			else:
-				lick_data_probability[df_index].append(0)
+				lick_data_probability[valence].append(0)
 
 			# counts if there was any blink (pupil=0) in the specified time window
 			pupil_binary_zero = df['pupil_binary_zero'].iloc[t_index]
-			blink_probability[df_index].append(pupil_binary_zero)
+			blink_probability[valence].append(pupil_binary_zero)
 
 			# Lick/Blink Duration
 			lick_raw = df['lick'].iloc[t_index]
 			lick_data_voltage = lick_raw[trace_off_time-WINDOW_THRESHOLD_LICK:trace_off_time]
 			lick_data_voltage_mean = np.mean(lick_data_voltage)
-			lick_data_duration[df_index].append(lick_data_voltage_mean)
+			lick_data_duration[valence].append(lick_data_voltage_mean)
 
 			DEM_raw = df['blink_duration_offscreen'].iloc[t_index]
-			DEM_duration[df_index].append(DEM_raw)
+			DEM_duration[valence].append(DEM_raw)
 
 			blink_raw = df['pupil_raster_window_avg'].iloc[t_index]
-			blink_duration[df_index].append(blink_raw)
+			blink_duration[valence].append(blink_raw)
 	
 	return lick_data_probability, blink_probability, lick_data_duration, DEM_duration, blink_duration
 
-def two_sample_test(data_type, data_raster, condition, session_obj, direction='forwards'):
+def two_sample_test(data_type, df, data_raster, condition, session_obj, direction='forwards'):
 	'''Lick/Blink Probability 2-Sample T-Test'''
 
 	f, axarr = plt.subplots(2,3, figsize=(12,4), sharex=True, sharey=True)
 
 	FIGURE_SAVE_PATH = session_obj.figure_path
-	COLORS = list(session_obj.valence_colors.values())
-	LABELS = list(session_obj.valence_labels.values())[:4]
+	COLORS = session_obj.valence_colors
+	LABELS = session_obj.valence_labels
 	num_valences = len(LABELS)
 	window_width = 5
+	valence_list = [1.0, 0.5, -0.5, -1.0]
 
 	verbose = False
-	valence_combinations = list(combinations(range(num_valences), 2))
+	valence_combinations = list(combinations(valence_list, 2))
 	prob_combinations = list(combinations(data_raster.values(), 2))
-	for f_index, valence in enumerate(valence_combinations):
-		if valence == (0, 1):
+	for f_index, valence_pair in enumerate(valence_combinations):
+		if valence_pair == (1.0, 0.5):
 			ax = axarr[0][0]
-		if valence == (0, 2):
+		if valence_pair == (1.0, -0.5):
 			ax = axarr[0][1]
-		if valence == (0, 3):
+		if valence_pair == (1.0, -1.0):
 			ax = axarr[0][2]
-		if valence == (1, 2):
+		if valence_pair == (0.5, -0.5):
 			ax = axarr[1][0]
-		if valence == (1, 3):
+		if valence_pair == (0.5, -1.0):
 			ax = axarr[1][1]
-		if valence == (2, 3):
+		if valence_pair == (-0.5, -1.0):
 			ax = axarr[1][2]
-		valence_1, valence_2 = LABELS[valence[0]], LABELS[valence[1]]
-		a = prob_combinations[f_index][0]
-		d = prob_combinations[f_index][1]
+		valence_1, valence_2 = valence_pair[0], valence_pair[1]
+		valence_1_label, valence_2_label = LABELS[valence_pair[0]], LABELS[valence_pair[1]]
+		a = data_raster[valence_1]
+		d = data_raster[valence_2]
+		if 0.0 in df['valence'].unique():
+			z = data_raster[0.0]
+			ma_vec_z = moving_avg(z, window_width)
+			mv_vec_z = moving_var(z, window_width)
 		t_all, p_all = ttest_ind(a, d, equal_var=False)
 		ma_vec_a = moving_avg(a, window_width)
 		mv_vec_a = moving_var(a, window_width)
@@ -138,23 +144,28 @@ def two_sample_test(data_type, data_raster, condition, session_obj, direction='f
 				else:
 					p_str = str(round(p, 3))
 			# Plot Running Average
-			ax.plot(list(range(len(ma_vec_a))), ma_vec_a, c=COLORS[valence[0]], lw=4, label=valence_1)
-			ax.plot(list(range(len(ma_vec_d))), ma_vec_d, c=COLORS[valence[1]], lw=4, label=valence_2)
+			ax.plot(list(range(len(ma_vec_a))), ma_vec_a, c=COLORS[valence_1], lw=4, label=valence_1_label)
+			ax.plot(list(range(len(ma_vec_d))), ma_vec_d, c=COLORS[valence_2], lw=4, label=valence_2_label)
 			# Plot Variance 
 			ax.fill_between(list(range(len(ma_vec_a))), ma_vec_a-(mv_vec_a/2), ma_vec_a+(mv_vec_a/2),
-											color=COLORS[valence[0]], alpha=0.2) # variance
+											color=COLORS[valence_1], alpha=0.2) # variance
 			ax.fill_between(list(range(len(ma_vec_d))), ma_vec_d-(mv_vec_d/2), ma_vec_d+(mv_vec_d/2),
-											color=COLORS[valence[1]], alpha=0.2) # variance
+											color=COLORS[valence_2], alpha=0.2) # variance
 			ax.set_xticks(list(range(0, len(ma_vec_a), 5)))
 			ax.set_xticklabels(list(range(window_width, len(ma_vec_a)+window_width, 5)))
+			# Plot neutral fractal if it exists
+			if 0.0 in df['valence'].unique():
+				ax.plot(list(range(len(ma_vec_z))), ma_vec_z, c=COLORS[0.0], lw=4, label=LABELS[0.0], alpha=0.5)
+				ax.fill_between(list(range(len(ma_vec_z))), ma_vec_z-(mv_vec_z/2), ma_vec_z+(mv_vec_z/2),
+												color=COLORS[0.0], alpha=0.1)
 		if direction == 'backwards':
 			size_diff = len(max_array) - len(min_array)
 			for window in range(window_width, min_len):
 				min_windowback = min_array[window-window_width+size_diff:window+size_diff]
 				max_windowback = max_array[window-window_width:window]
 			# Plot Running Average
-			ax.plot(list(range((min_len-1)*-1, 1)), ma_vec_a[-min_len:], c=COLORS[valence[0]], lw=4, label=valence_1)
-			ax.plot(list(range((min_len-1)*-1, 1)), ma_vec_d[-min_len:], c=COLORS[valence[1]], lw=4, label=valence_2)
+			ax.plot(list(range((min_len-1)*-1, 1)), ma_vec_a[-min_len:], c=COLORS[valence_1], lw=4, label=valence_1_label)
+			ax.plot(list(range((min_len-1)*-1, 1)), ma_vec_d[-min_len:], c=COLORS[valence_2], lw=4, label=valence_2_label)
 			base = 5
 			round_off = base * math.ceil((min_len-1)/ base)
 			ax.set_xticks(list(range((round_off)*-1, 1, 5)))
@@ -164,7 +175,7 @@ def two_sample_test(data_type, data_raster, condition, session_obj, direction='f
 			ax.set_ylim([0,1])
 		if verbose:
 			print('  {}'.format(window),
-						valence_1, valence_2, 
+						valence_1_label, valence_2_label, 
 						round(np.mean(a), 3),
 						round(np.mean(d), 3),
 						format(p_all, '.3g'))
@@ -193,6 +204,6 @@ def t_test_moving_avg(df, session_obj, condition):
 	lick_data_probability, blink_probability, lick_data_duration, DEM_duration, blink_duration =\
 		 		 generate_data_dict(df, session_obj)
 	set_plot_params(FONT=10, AXES_TITLE=11, AXES_LABEL=10, TICK_LABEL=10, LEGEND=8, TITLE=14)
-	two_sample_test('lick-duration', lick_data_duration, condition, session_obj)
-	two_sample_test('DEM-duration', DEM_duration, condition, session_obj)
-	two_sample_test('blink-duration', blink_duration, condition, session_obj)	
+	two_sample_test('lick-duration', df, lick_data_duration, condition, session_obj)
+	two_sample_test('DEM-duration', df, DEM_duration, condition, session_obj)
+	two_sample_test('blink-duration', df, blink_duration, condition, session_obj)	

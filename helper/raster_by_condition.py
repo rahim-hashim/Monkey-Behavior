@@ -92,8 +92,9 @@ def raster_by_condition(session_df, session_obj):
 
 	gs_kw = dict(width_ratios=[5, 1, 1])
 	f, axarr = plt.subplots(3,3, gridspec_kw=gs_kw, sharey = False, figsize=(50,20))
-	LABELS = session_obj.stim_labels
-	num_fractals = len(LABELS)
+	num_fractals = len(session_df['stimuli_name'].unique())
+	LABELS = session_obj.stim_labels[:num_fractals]
+	
 
 	TRIAL_THRESHOLD = 10
 
@@ -106,6 +107,7 @@ def raster_by_condition(session_df, session_obj):
 	cs_time_min, trace_time_min, outcome_time_min = epoch_time(session_df_threshold)
 
 	valence_list = sorted(session_df_threshold['valence'].unique(), reverse=True)
+	color_list = [COLORS[valence] for valence in valence_list]
 	for df_index, valence in enumerate(valence_list):
 
 		# keys = each trial, values = list of lick/blink duration data
@@ -212,7 +214,6 @@ def raster_by_condition(session_df, session_obj):
 		blink_data_mean = list(map(np.mean, blink_dict.values()))
 		pupil_data_raster_mean = list(map(np.mean, pupil_dict.values()))
 
-		labels = list(session_obj.valence_labels.values())[:4]
 		label = session_obj.valence_labels[valence]
 
 		# Simple Moving Average Smoothing
@@ -220,13 +221,13 @@ def raster_by_condition(session_df, session_obj):
 		x = np.array(bins[PRE_CS:]) # only capturing post-CS bins
 		y1 = moving_avg(lick_data_mean, WINDOW_SIZE)
 		axarr[0][0].plot(x, y1[:-1], 
-										color=COLORS[valence], label=label, linewidth=4)
+										color=color_list[df_index], label=label, linewidth=4)
 		y2 = moving_avg(blink_data_mean, WINDOW_SIZE)
 		axarr[1][0].plot(x, y2[:-1], 
-										color=COLORS[valence], label=label, linewidth=4)
+										color=color_list[df_index], label=label, linewidth=4)
 		y3 = moving_avg(pupil_data_raster_mean, WINDOW_SIZE)
 		axarr[2][0].plot(range(len(y3)), y3, 
-										color=COLORS[valence], label=label, linewidth=4)
+										color=color_list[df_index], label=label, linewidth=4)
 
 	axarr[0][0].text(0, 1.08, 'CS On', ha='center', va='center', fontsize='large')
 	axarr[0][0].text(cs_time_min, 1.08, 'Delay', ha='center', va='center', fontsize='large')
@@ -292,9 +293,9 @@ def raster_by_condition(session_df, session_obj):
 		axarr[ax_index][0].legend(loc='upper right', frameon=False)
 		## Bar Graph - lick/blink probability
 		data_probability_mean = list(map(np.mean, probability_list[ax_index].values()))
-		axarr[ax_index][1].bar(list(range(num_fractals)), data_probability_mean, color=list(COLORS.values()), ec='black')
+		axarr[ax_index][1].bar(list(range(num_fractals)), data_probability_mean, color=color_list, ec='black')
 		axarr[ax_index][1].set_xticks(list(range(num_fractals)))
-		axarr[ax_index][1].set_xticklabels(labels, fontsize=26)
+		axarr[ax_index][1].set_xticklabels(LABELS, fontsize=26)
 		axarr[ax_index][1].set_xlabel('Outcome')
 		axarr[ax_index][1].set_ylabel('{}'.format(label_list_prob[ax_index]))
 
@@ -302,9 +303,9 @@ def raster_by_condition(session_df, session_obj):
 		data_duration_mean = list(map(np.mean, duration_list[ax_index].values()))
 		if ax_index == 0:
 			axarr[ax_index][2].set_ylim([0, 1])
-		axarr[ax_index][2].bar(list(range(num_fractals)), data_duration_mean, color=list(COLORS.values()), ec='black')
+		axarr[ax_index][2].bar(list(range(num_fractals)), data_duration_mean, color=color_list, ec='black')
 		axarr[ax_index][2].set_xticks(list(range(num_fractals)))
-		axarr[ax_index][2].set_xticklabels(labels, fontsize=26)
+		axarr[ax_index][2].set_xticklabels(LABELS, fontsize=26)
 		axarr[ax_index][2].set_xlabel('Outcome', fontsize=26)
 		axarr[ax_index][2].set_ylabel('{}'.format(label_list_dur[ax_index]), fontsize=26)
 

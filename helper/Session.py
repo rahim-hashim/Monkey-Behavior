@@ -23,7 +23,9 @@ class Session:
 		self.colors = []
 		self.stim_labels = []
 		self.valence_colors = {1.0: '#28398D', 0.5: '#91BFBC', # dark blue, blue,
-													-0.5: '#ED8C8C', -1.0: '#D61313'} # red, dark red
+													0: '#B0B0B0',
+													-0.5: '#ED8C8C', -1.0: '#D61313', # red, dark red
+													} 
 		self.valence_labels = defaultdict(str)
 		self.session_num = 0						# can be multiple sessions per monkey per day
 		self.session_length = 0					# length of each session in seconds
