@@ -55,35 +55,44 @@ def epoch_hist(df, session_obj):
   df['fixation-success_trial-start'] = df['Fixation Success'] - df['Start Trial']
   df['cs-off_cs-on'] = df['CS Off'] - df['CS On']
   df['trace-end_trace_on'] = df['Trace End'] - df['Trace Start']
-  df['reward_trace-end'] = df['Reward Trigger'] - df['Trace End']
-  df['airpuff_trace-end'] = df['Airpuff Trigger'] - df['Trace End']
+  df['reward_trace-end'] = df['Reward Trigger'] - df['Outcome Start']
+  df['airpuff_trace-end'] = df['Airpuff Trigger'] - df['Outcome Start']
 
   # valence dataframes
   df_large_positive = df[df['valence'] == 1]
   df_small_positive = df[df['valence'] == 0.5]
+  df_neutral = df[df['valence'] == 0]
   df_small_negative = df[df['valence'] == -0.5]
   df_large_negative = df[df['valence'] == -1]
 
   df_large_positive['fixation-success_trial-start'].hist(bins=20, color='blue', ax=axarr[0][0], label='large positive', alpha=0.5)
   df_small_positive['fixation-success_trial-start'].hist(bins=20, color='lightblue', ax=axarr[0][0], label='small positive', alpha=0.5)
+  if len(df_neutral) > 0:
+    df_neutral['fixation-success_trial-start'].hist(bins=20, color='grey', ax=axarr[0][0], label='neutral', alpha=0.5)
   df_small_negative['fixation-success_trial-start'].hist(bins=20, color='lightpink', ax=axarr[0][0], label='small negative', alpha=0.5)
   df_large_negative['fixation-success_trial-start'].hist(bins=20, color='red', ax=axarr[0][0], label='large negative', alpha=0.5)
   axarr[0][0].legend(loc='upper right')
 
   df_large_positive['cs-off_cs-on'].hist(bins=20, color='blue', ax=axarr[1][0], label='large positive', alpha=0.5)
   df_small_positive['cs-off_cs-on'].hist(bins=20, color='lightblue', ax=axarr[1][0], label='small positive', alpha=0.5)
+  if len(df_neutral) > 0:
+    df_neutral['cs-off_cs-on'].hist(bins=20, color='grey', ax=axarr[1][0], label='neutral', alpha=0.5)
   df_small_negative['cs-off_cs-on'].hist(bins=20, color='lightpink', ax=axarr[1][0], label='small negative', alpha=0.5)
   df_large_negative['cs-off_cs-on'].hist(bins=20, color='red', ax=axarr[1][0], label='large negative', alpha=0.5)
   axarr[1][0].legend(loc='upper right')
 
   df_large_positive['trace-end_trace_on'].hist(bins=20, color='blue', ax=axarr[0][1], label='large positive', alpha=0.5)
   df_small_positive['trace-end_trace_on'].hist(bins=20, color='lightblue', ax=axarr[0][1], label='small positive', alpha=0.5)
+  if len(df_neutral) > 0:
+    df_neutral['trace-end_trace_on'].hist(bins=20, color='grey', ax=axarr[0][1], label='neutral', alpha=0.5)
   df_large_negative['trace-end_trace_on'].hist(bins=20, color='lightpink', ax=axarr[0][1], label='small negative', alpha=0.5)
   df_large_negative['trace-end_trace_on'].hist(bins=20, color='red', ax=axarr[0][1], label='large negative', alpha=0.5)
   axarr[0][1].legend(loc='upper right')
 
   df_large_positive['reward_trace-end'].hist(bins=20, color='blue', ax=axarr[1][1], label='large positive', alpha=0.5)
   df_small_positive['reward_trace-end'].hist(bins=20, color='lightblue', ax=axarr[1][1], label='small positive', alpha=0.5)
+  if len(df_neutral) > 0:
+    df_neutral['reward_trace-end'].hist(bins=20, color='grey', ax=axarr[1][1], label='neutral', alpha=0.5)
   df_small_negative['airpuff_trace-end'].hist(bins=20, color='lightpink', ax=axarr[1][1], label='small negative', alpha=0.5)
   df_large_negative['airpuff_trace-end'].hist(bins=20, color='red', ax=axarr[1][1], label='large negative', alpha=0.5)
   axarr[1][1].legend(loc='upper right')

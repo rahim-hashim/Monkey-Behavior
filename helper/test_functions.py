@@ -15,24 +15,26 @@ pd.options.mode.chained_assignment = None  # default='warn'
 ROOT = '/Users/rahimhashim/Google Drive/My Drive/Columbia/Salzman/Monkey-Training/'
 # ROOT = '/mnt/g/My Drive/Columbia/Salzman/Monkey-Training/'
 EXPERIMENT = 'rhAirpuff'
-TASK = 'Probabalistic_Airpuff_4x2'
+# TASK = 'Probabalistic_Airpuff_4x2'
+TASK = 'Probabilistic_Reward_Airpuff_5x2'
 path_obj = Path(ROOT, EXPERIMENT, TASK)
 
 # Specifying date/monkey/task
-start_date = '2023-03-22'
-end_date = '2023-03-22'
+start_date = '2023-03-23'
+end_date = '2023-03-27'
 monkey_input = 'Aragorn'
-reprocess_data = True
-save_df = True
+reprocess_data = False
+save_df = False
 
 # parse data
 h5_filenames = h5_helper.h5_pull(path_obj.current_dir) # pull all .h5 files from specified directory
-ml_config, trial_record, session_df, error_dict, behavioral_code_dict\
+ml_config, trial_record, session_df, session_obj, error_dict, behavioral_code_dict\
 	= preprocess_helper.preprocess_data(h5_filenames,
 																			path_obj,
 																			start_date,
 																			end_date,
 																			monkey_input,
+																			TASK,
 																			reprocess_data,
 																			save_df)
 

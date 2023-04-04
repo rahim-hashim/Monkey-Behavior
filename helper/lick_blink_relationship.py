@@ -41,7 +41,6 @@ def lick_blink_linear(df, session_obj):
 		# valence-specific session lick/blink data
 		x = np.array(df_valence['lick_duration'].tolist())
 		y = df_valence['blink_duration_offscreen'].tolist()
-
 		color = COLORS[valence]
 		sns.regplot(x=x, y=y, color=color, label=valence, ax=ax, ci=None)
 	

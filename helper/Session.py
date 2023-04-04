@@ -14,7 +14,7 @@ def colorFader(c1,c2,mix=0): #fade (linear interpolate) from color c1 (at mix=0)
 
 class Session:
 	def __init__(self, df, monkey_input, task, behavioral_code_dict):
-		print(' Creating Session Objects...')
+		print('Creating Session Objects...')
 		self.df = df
 		self.monkey = monkey_input
 		self.task = task
@@ -23,7 +23,7 @@ class Session:
 		self.colors = []
 		self.stim_labels = []
 		self.valence_colors = {1.0: '#28398D', 0.5: '#91BFBC', # dark blue, blue,
-													0: '#B0B0B0',
+													0: '#B0B0B0', # gray
 													-0.5: '#ED8C8C', -1.0: '#D61313', # red, dark red
 													} 
 		self.valence_labels = defaultdict(str)

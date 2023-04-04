@@ -140,7 +140,14 @@ def grant_plots(session_df, session_obj):
 													# yerr=measure_std_list,
 													color=color, linewidth=2)
 			axarr[ax_index].set_xticks(range(len(measure_mean_list)))
-			outcome_mag_labels = ['none', 'small', 'large']
+			outcome_mag_labels = []
+			for magnitude in outcome_mag_list:
+				if magnitude == 0:
+					outcome_mag_labels.append('none')
+				elif magnitude == 0.5:
+					outcome_mag_labels.append('small')
+				elif magnitude == 1:
+					outcome_mag_labels.append('large')
 			axarr[ax_index].set_xticklabels(outcome_mag_labels)
 			axarr[ax_index].set_ylim([0,1])
 		axarr[0].set_xlabel('{} Magnitude'.format(outcome))

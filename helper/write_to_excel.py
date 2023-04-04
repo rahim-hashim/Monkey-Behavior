@@ -74,24 +74,33 @@ def behavior_summary(df, session_obj):
 	session_df_count = df_correct[df_correct['fractal_count_in_block'] > TRIAL_THRESHOLD]
 	
 	lick_mean = []
+	DEM_mean = []
 	blink_mean = []
-	for valence in sorted(session_df_count['valence'].unique(), reverse=True):
+	valences_selected = [1.0, 0.5, -0.5, -1.0]
+	for valence in valences_selected:
 		valence_df = session_df_count[session_df_count['valence'] == valence]
+		if valence_df.empty:
+			lick_mean.append(np.nan)
+			DEM_mean.append(np.nan)
+			blink_mean.append(np.nan)
+			continue
 		lick_mean.append(valence_df['lick_duration'].mean())
-		blink_mean.append(valence_df['blink_duration_offscreen'].mean())
+		DEM_mean.append(valence_df['blink_duration_offscreen'].mean())
+		blink_mean.append(valence_df['pupil_raster_window_avg'].mean())
 
-	return lick_mean, blink_mean
+	return lick_mean, DEM_mean, blink_mean
 
 def outcome_params(session_obj):
 	reward_list = []
 	airpuff_list = []
 	num_reward_mag = len(session_obj.reward_outcome_params['reward_drops'])
+	num_airpuff_mag = len(session_obj.airpuff_outcome_params['airpuff_mag'])
 	for reward_mag in range(num_reward_mag):
 		reward_list.append(session_obj.reward_outcome_params['reward_drops'][reward_mag])
 		reward_list.append(session_obj.reward_outcome_params['reward_freq'][reward_mag])
 		reward_list.append(session_obj.reward_outcome_params['reward_length'][reward_mag])
 	num_airpuff_mag = len(session_obj.airpuff_outcome_params['airpuff_mag'])
-	for airpuff_mag in range(num_reward_mag):
+	for airpuff_mag in range(num_airpuff_mag):
 		airpuff_list.append(session_obj.airpuff_outcome_params['airpuff_pulses'][airpuff_mag])
 		airpuff_list.append(session_obj.airpuff_outcome_params['airpuff_freq'][airpuff_mag])
 	return reward_list, airpuff_list
@@ -120,7 +129,7 @@ def write_to_excel(df, session_obj, path_obj, verbose=False):
 		perc_initiated = session_obj.prop_trials_initiated
 		perc_correct = session_obj.prop_correct_CS_on
 		reward_list, airpuff_list = outcome_params(session_obj)
-		lick_valence_list, blink_valence_list = behavior_summary(df, session_obj)
+		lick_valence_list, DEM_valence_list, blink_valence_list = behavior_summary(df, session_obj)
 		behavior_values = [date_str, 
 								weekday_str,
 								session_obj.monkey,
@@ -136,7 +145,7 @@ def write_to_excel(df, session_obj, path_obj, verbose=False):
 								perc_correct]
 		all_data = behavior_values + \
 							reward_list + airpuff_list + \
-							lick_valence_list + blink_valence_list
+							lick_valence_list + DEM_valence_list
 		ws.append(all_data)
 		wb.save(EXCEL_PATH)
 

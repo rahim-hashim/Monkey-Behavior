@@ -4,6 +4,8 @@ import pandas as pd
 from textwrap import indent
 from pprint import pprint, pformat
 from collections import defaultdict, OrderedDict
+# Custom modules
+from based_noise_blinks_detection import based_noise_blinks_detection
 
 def add_epoch_times(df, behavioral_code_dict):
 	"""
@@ -48,7 +50,7 @@ def valence_assignment(row):
 		row: session DataFrame row
 			
 	Returns:
-		valence: scalar value of valence of stimuli [1, 0.5, -0.5, -1]
+		valence: scalar value of valence of stimuli [1, 0.5, 0, -0.5, -1]
 	"""
 	valence = 0
 	# airpuff 
@@ -241,12 +243,20 @@ def outcome_count_window(trial, session_obj):
 		pupil_data_window = pupil_data[trace_off_time-TRACE_WINDOW_BLINK:trace_off_time]
 		blink_raster = [1 if x == 0 else 0 for x in pupil_data_window]
 		blink_count = 1 if 1 in blink_raster else 0	
+		# blink detection based on Hershman 2018 work
+		blink_dict = based_noise_blinks_detection(pupil_data_window, sampling_freq=1000)
+		blink_onset = blink_dict['blink_onset']
+		blink_offset = blink_dict['blink_offset']
+		blink_duration = blink_dict['blink_duration']/TRACE_WINDOW_BLINK
 	except: # error before 'Trace End'
 		lick_data_window = np.nan
 		blink_data_window = np.nan	
 		pupil_data_window = np.nan	
 		blink_raster = np.nan	
 		blink_count = np.nan
+		blink_onset = [np.nan]
+		blink_offset = [np.nan]
+		blink_duration = np.nan
 	trial['lick_count_window'] = lick_data_window
 	trial['blink_count_window'] = blink_data_window
 	trial['pupil_data_window'] = pupil_data_window
@@ -254,6 +264,9 @@ def outcome_count_window(trial, session_obj):
 	trial['pupil_raster_window'] = blink_raster
 	trial['pupil_raster_window_avg'] = np.mean(blink_raster)
 	trial['pupil_binary_zero'] = blink_count
+	trial['blink_onset'] = blink_onset
+	trial['blink_offset'] = blink_offset
+	trial['blink_duration'] = blink_duration
 	return trial
 
 def pupil_pre_CS(trial):
@@ -380,8 +393,8 @@ def parse_valence_labels(df, session_obj):
 	Parses valence labels
 
 	Args:
-		df: session_df DataFrame
-		session_obj: session object
+		df						: session_df DataFrame
+		session_obj		: session object
 
 	Returns:
 		session_obj: session object with updated valence labels
@@ -401,7 +414,7 @@ def parse_valence_labels(df, session_obj):
 	return session_obj
 
 def add_fields(df, session_obj, behavioral_code_dict):
-	print(' Adding additional fields to session_df DataFrame...')
+	print('Adding additional fields to session_df DataFrame...')
 
 	TRACE_WINDOW_LICK = session_obj.window_lick
 	TRACE_WINDOW_BLINK = session_obj.window_blink
@@ -440,6 +453,8 @@ def add_fields(df, session_obj, behavioral_code_dict):
 
 	session_obj = prelim_behavior_analysis(df, session_obj, behavioral_code_dict)
 	session_obj = parse_valence_labels(df, session_obj)
-	print(indent(pformat(df.columns), '  '))
+
+	# clear rows with valence == nan
+	df = df[df['valence'].notnull()]
 
 	return df, session_obj

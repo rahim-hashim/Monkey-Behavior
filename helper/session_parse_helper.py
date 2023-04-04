@@ -45,25 +45,33 @@ def stimulus_parser(stimulus, stimuli_dict, session_dict):
 
 def camera_parser(session, session_dict, cam1_list, cam2_list, date_input, monkey_input):
 	print('Parsing camera data...')
-	for c_index, cam_list in enumerate([cam1_list, cam2_list]):
-		for t_index, trial in enumerate(tqdm(cam_list)):
-			cam_data = session['ML'][trial]
-			# name of camera trial file
-			cam_trial_name_full = cam_data['Filename'][...].tolist().decode()
-			cam_trial_name = cam_trial_name_full.split('\\')[-1].split('.')[0]
-			trial_name_column = 'cam{}_trial_name'.format(c_index+1)
-			session_dict[trial_name_column].append(cam_trial_name)
-			# time of frames in camera trial file
-			cam_time_column = 'cam{}_trial_time'.format(c_index+1)
-			cam_trial_time = cam_data['Time'][0]
-			session_dict[cam_time_column].append(cam_trial_time)
-			# data from camera trial file
-			cam_data_column = 'cam{}_video'.format(c_index+1)
-			try:
-				cam_trial_file = cam_data['File'][0]
-				session_dict[cam_data_column].append(cam_trial_file)
-			except: # video data removed from file using mlexportwebcam
-				session_dict[cam_data_column].append(np.nan)
+	if (not cam1_list) and (not cam2_list):
+		session_dict['cam1_trial_name'] = np.nan
+		session_dict['cam2_trial_name'] = np.nan
+		session_dict['cam1_trial_time'] = np.nan
+		session_dict['cam2_trial_time'] = np.nan
+		session_dict['cam1_video'] = np.nan
+		session_dict['cam2_video'] = np.nan
+	else:
+		for c_index, cam_list in enumerate([cam1_list, cam2_list]):
+			for t_index, trial in enumerate(tqdm(cam_list)):
+				cam_data = session['ML'][trial]
+				# name of camera trial file
+				cam_trial_name_full = cam_data['Filename'][...].tolist().decode()
+				cam_trial_name = cam_trial_name_full.split('\\')[-1].split('.')[0]
+				trial_name_column = 'cam{}_trial_name'.format(c_index+1)
+				session_dict[trial_name_column].append(cam_trial_name)
+				# time of frames in camera trial file
+				cam_time_column = 'cam{}_trial_time'.format(c_index+1)
+				cam_trial_time = cam_data['Time'][0]
+				session_dict[cam_time_column].append(cam_trial_time)
+				# data from camera trial file
+				cam_data_column = 'cam{}_video'.format(c_index+1)
+				try:
+					cam_trial_file = cam_data['File'][0]
+					session_dict[cam_data_column].append(cam_trial_file)
+				except: # video data removed from file using mlexportwebcam
+					session_dict[cam_data_column].append(np.nan)
 	print('  Complete.')
 	return session_dict
 

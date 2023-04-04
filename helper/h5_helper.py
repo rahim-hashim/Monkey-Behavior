@@ -4,10 +4,13 @@ import h5py
 import time
 import pickle
 import pandas as pd
+from textwrap import indent
 import ipywidgets as widgets
+from pprint import pprint, pformat
 from datetime import date, timedelta
 from collections import defaultdict
 # Custom modules
+from Session import Session
 from add_fields import add_fields
 from IPython.display import display
 from session_parse_helper import session_parser, camera_parser
@@ -28,12 +31,13 @@ def trial_cam_match(trial_list, cam1_list=None, cam2_list=None):
   """Checks for trial and camera number mismatch"""
   mistmatch_flag = False
   cams_list = []
-  if cam1_list is not None:
+  if cam1_list:
     print('  Cam 1 assigned')
     cams_list.append(cam1_list)
-  if cam2_list is not None:
+  if cam2_list:
     print('  Cam 2 assigned')
     cams_list.append(cam2_list)
+  
   for trial in trial_list:
     trial_no = int(trial[5:])
     for cam in cams_list:
@@ -74,12 +78,13 @@ def h5_parse(f):
         trial_num = int(subgroup[5:]) # trials all end in numbers (i.e. Trial1, Trial2,...Trialn)
         if 'Trial' in subgroup:
           trial_list.append(subgroup)
-        else:
+        elif 'Cam' in subgroup:
           [cam1_list.append(subgroup) if 'Cam1' in subgroup else cam2_list.append(subgroup)]
       except:
           continue
   # check for trial and camera number mismatch
-  trial_cam_match(trial_list, cam1_list, cam2_list)
+  if cam1_list or cam2_list:
+    trial_cam_match(trial_list, cam1_list, cam2_list)
 
   print('Total number of trials: {}'.format(len(trial_list)))
   ml_config = f['ML']['MLConfig']
@@ -173,6 +178,8 @@ def file_selector(file_dir, all_selected_dates, monkey_input):
     """
     files_selected = []
     dates_array = []
+    # sort in ascending order
+    file_dir.sort()
     for f in file_dir:
       for date_formatted in all_selected_dates:
         if (date_formatted in f) and (monkey_input in f):
@@ -220,31 +227,42 @@ def h5_to_df(current_path, target_path, h5_filenames, start_date, end_date, monk
       else:
         print('  {} - Missing'.format(f))
   else:
-    print('All files:')
+    print(f'All files: {current_path}')
     for f in h5_filenames:
       print(' ', f)
-      raise RuntimeError('No file found - check directory')
+    raise RuntimeError('No file found - check directory')
 
   print('Converting .h5 to python:')
   if python_converted_files:
     for f_index, f in enumerate(python_converted_files):
       print('  {}'.format(f))
       ml_config, trial_record, trial_list, cam1_list, cam2_list = h5_parse(f)
+      experiment_name = ml_config['ExperimentName'][...].tolist().decode()
       # parse session data
       session_dict, error_dict, behavioral_code_dict = \
         session_parser(f, trial_list, trial_record, dates_array[f_index], monkey_input)
       # parse camera data
-      session_dict = camera_parser(f, session_dict, cam1_list, cam2_list, dates_array[f_index], monkey_input)
+      session_dict = \
+        camera_parser(f, session_dict, cam1_list, cam2_list, dates_array[f_index], monkey_input)
+       # convert dictionary to pd.DataFrame
+      session_df_new = pd.DataFrame.from_dict(session_dict)
+      # session_obj contains session metadata
+      session_obj = Session(session_df_new, monkey_input, experiment_name, behavioral_code_dict)      
+      # adds custom fields
+      session_df_new, session_obj = add_fields(session_df_new,
+                                               session_obj, 
+                                               behavioral_code_dict)  
+      # pickles each session
+      pickler(save_df, target_path, session_df_new, monkey_input, experiment_name,
+              error_dict, behavioral_code_dict)
       if f_index == 0:
-        session_df = pd.DataFrame.from_dict(session_dict) # convert dictionary to pd.DataFrame
+        session_df = session_df_new
       else:
-        session_df_new = pd.DataFrame.from_dict(session_dict)
-        session_df = session_df.append(session_df_new, ignore_index=True)
-    experiment_name = ml_config['ExperimentName'][...].tolist().decode()
+        session_df = session_df.append(session_df_new, ignore_index=True) 
 
-    pickler(save_df, target_path, session_df, monkey_input, experiment_name,
-            error_dict, behavioral_code_dict) # pickles individual session
   else:
       raise RuntimeError('No .h5 files found for selected dates')
 
-  return ml_config, trial_record, session_df, error_dict, behavioral_code_dict
+  print(indent(pformat(session_df.columns), '  '))
+
+  return ml_config, trial_record, session_df, session_obj, error_dict, behavioral_code_dict

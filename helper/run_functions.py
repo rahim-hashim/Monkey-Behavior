@@ -37,8 +37,8 @@ def run_functions(df, session_obj, path_obj, behavioral_code_dict, error_dict, F
 	from session_lick import session_lick
 	session_lick(df, session_obj)
 
-	# from trial_raster import trial_raster
-	# trial_raster(df, session_obj)
+	from trial_raster import trial_raster
+	trial_raster(df, session_obj)
 
 	from raster_by_condition import raster_by_condition
 	from two_sample_test import t_test_moving_avg

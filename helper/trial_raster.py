@@ -32,21 +32,26 @@ def trial_raster(df, session_obj):
 	BIN = 10 # for binning the data
 	POST_TRACE = 350 # time after outcome to plot
 	max_y = max(tuple(df.groupby('stimuli_name').size())) # for labeling
+	num_fractals = len(df['stimuli_name'].unique())
 
-	f1, axarr1 = plt.subplots(2,2, figsize=(5,10), sharey = True) # lick data plot
-	f2, axarr2 = plt.subplots(2,2, figsize=(5,10), sharey = True) # blink data plot
+	# f1, axarr1 = plt.subplots(2,2, figsize=(5,10), sharey = True) # lick data plot
+	# f2, axarr2 = plt.subplots(2,2, figsize=(5,10), sharey = True) # blink data plot
+	f1, axarr1 = plt.subplots(1,num_fractals, figsize=(20,7), sharey = True) # lick data plot
+	f2, axarr2 = plt.subplots(1,num_fractals, figsize=(20,7), sharey = True) # lick data plot
 
 	for f_index, fractal in enumerate(sorted(df['stimuli_name'].unique())):
 		fractal_df = df[df['stimuli_name'] == fractal]
-		pos_i = ax_map_i[f_index]
-		pos_j = ax_map_j[f_index]
+		# pos_i = ax_map_i[f_index]
+		# pos_j = ax_map_j[f_index]
 		fractal_df['block_change'] = fractal_df['block'].diff()
 		block_change_trials = np.nonzero(fractal_df['block_change'].tolist())[0]
 		block_change = -1
 		if len(block_change_trials) > 1:
 			block_change = np.nonzero(fractal_df['block_change'].tolist())[0][1]
-			axarr1[pos_i][pos_j].axhline(y=block_change+1, c='darkred', alpha=0.5)
-			axarr2[pos_i][pos_j].axhline(y=block_change+1, c='darkred', alpha=0.5)
+			# axarr1[pos_i][pos_j].axhline(y=block_change+1, c='darkred', alpha=0.5)
+			# axarr2[pos_i][pos_j].axhline(y=block_change+1, c='darkred', alpha=0.5)
+			axarr1[f_index].axhline(y=block_change+1, c='darkred', alpha=0.5)
+			axarr2[f_index].axhline(y=block_change+1, c='darkred', alpha=0.5)
 		for index in range(len(fractal_df)+1):
 			i = index
 			# Make blank row for block change
@@ -80,8 +85,10 @@ def trial_raster(df, session_obj):
 			blink_raster_window_index = [bin*(index+1) if bin != 0 else np.nan \
 																	for bin in blink_raster_window] # replace 0 with np.nan
 			
-			axarr1[pos_i][pos_j].scatter(x_range, lick_raster_window_index, marker='|', s=3, color=COLORS[f_index])
-			axarr2[pos_i][pos_j].scatter(x_range, blink_raster_window_index, marker='|', s=3, color=COLORS[f_index])
+			# axarr1[pos_i][pos_j].scatter(x_range, lick_raster_window_index, marker='|', s=3, color=COLORS[f_index])
+			# axarr2[pos_i][pos_j].scatter(x_range, blink_raster_window_index, marker='|', s=3, color=COLORS[f_index])
+			axarr1[f_index].scatter(x_range, lick_raster_window_index, marker='|', s=3, color=COLORS[f_index])
+			axarr2[f_index].scatter(x_range, blink_raster_window_index, marker='|', s=3, color=COLORS[f_index])
 
 		for index, ax in enumerate([axarr1, axarr2]):
 			# Set timing labels
@@ -93,17 +100,22 @@ def trial_raster(df, session_obj):
 				window_start = np.mean(np.array(fractal_df['Trace End'].tolist()) - cs_on - session_obj.window_blink)
 			window_end = np.mean(np.array(fractal_df['Trace End'].tolist()) - cs_on)			
 
-			ax[pos_i][pos_j].set_title(LABELS[f_index])		
-			ax[pos_i][pos_j].axvline(x=0, color='black', linewidth=1) # CS onset
-			ax[pos_i][pos_j].axvline(x=trace_start, color='black', linewidth=1) # Trace start
-			ax[pos_i][pos_j].axvspan(xmin=window_start, xmax=window_end, color='lightgrey', alpha=0.4) # Window start
-			ax[pos_i][pos_j].axvline(x=window_end, color='black', linewidth=1) # Trace end
-			# ax[pos_i][pos_j].text(0, max_y+7, s='CS On', fontsize=6, ha='center')
-			# ax[pos_i][pos_j].text(trace_start, max_y+7, s='Delay', fontsize=6, ha='center')
-			# ax[pos_i][pos_j].text(window_end, max_y+7, s='Outcome', fontsize=6, ha='center')
-			ax[pos_i][pos_j].set_xlabel('Time after CS (ms)')
-			if pos_j == 0:
-				ax[pos_i][pos_j].set_ylabel('Fractal Trial')
+			# ax[pos_i][pos_j].set_title(LABELS[f_index])		
+			# ax[pos_i][pos_j].axvline(x=0, color='black', linewidth=1) # CS onset
+			# ax[pos_i][pos_j].axvline(x=trace_start, color='black', linewidth=1) # Trace start
+			# ax[pos_i][pos_j].axvspan(xmin=window_start, xmax=window_end, color='lightgrey', alpha=0.4) # Window start
+			# ax[pos_i][pos_j].axvline(x=window_end, color='black', linewidth=1) # Trace end
+			# ax[pos_i][pos_j].set_xlabel('Time after CS (ms)')
+			# if pos_j == 0:
+			# 	ax[pos_i][pos_j].set_ylabel('Fractal Trial')
+
+			ax[f_index].set_title(LABELS[f_index])		
+			ax[f_index].axvline(x=0, color='black', linewidth=1) # CS onset
+			ax[f_index].axvline(x=trace_start, color='black', linewidth=1) # Trace start
+			ax[f_index].axvspan(xmin=window_start, xmax=window_end, color='lightgrey', alpha=0.4) # Window start
+			ax[f_index].axvline(x=window_end, color='black', linewidth=1) # Trace end
+			ax[f_index].set_xlabel('Time after CS (ms)')
+			ax[f_index].set_ylabel('Fractal Trial')
 
 	f1.suptitle('Lick Raster',y=0.93)
 	name1 = 'fractal_lick_raster'

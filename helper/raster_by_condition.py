@@ -92,7 +92,7 @@ def raster_by_condition(session_df, session_obj):
 
 	gs_kw = dict(width_ratios=[5, 1, 1])
 	f, axarr = plt.subplots(3,3, gridspec_kw=gs_kw, sharey = False, figsize=(50,20))
-	num_fractals = len(session_df['stimuli_name'].unique())
+	num_fractals = len(session_df['valence'].unique())
 	LABELS = session_obj.stim_labels[:num_fractals]
 	
 
