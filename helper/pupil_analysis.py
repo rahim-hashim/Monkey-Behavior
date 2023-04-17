@@ -26,14 +26,18 @@ def pupil_valence_no_blink(session_df_correct, session_obj):
 	ax1.set_xlabel('Outcome', fontsize=14)
 	ax1.set_ylabel('Pupil Diameter (mm)', fontsize=14)
 	ax1.set_title('Pupil Diameter by Outcome', fontsize=20)
-	ax1.set_xticklabels(['Large Airpuff', 'Small Airpuff', 'Small Reward', 'Large Reward'], fontsize=12)
+	if len(df['valence'].unique()) == 4:
+		ticks = ['Large Airpuff', 'Small Airpuff', 'Small Reward', 'Large Reward']
+	else:
+		ticks = ['Large Airpuff', 'Small Airpuff', 'Neutral', 'Small Reward', 'Large Reward']
+	ax1.set_xticklabels(ticks, fontsize=12)
 	ax1.set_yticks([6500, 7000, 7500, 8000, 8500, 9000])
 	ax1.set_yticklabels([6500, 7000, 7500, 8000, 8500, 9000], fontsize=12)
 	ax1.set_ylim([6500, 9000])
 	ax2.set_xlabel('Outcome', fontsize=14)
 	ax2.set_ylabel('Pupil Diameter Mean (mm)', fontsize=14)
 	ax2.set_title('Pupil Diameter by Outcome', fontsize=20)
-	ax2.set_xticklabels(['Large Airpuff', 'Small Airpuff', 'Small Reward', 'Large Reward'], fontsize=12)
+	ax2.set_xticklabels(ticks, fontsize=12)
 	ax2.set_yticks([6500, 7000, 7500, 8000])
 	ax2.set_yticklabels([6500, 7000, 7500, 8000], fontsize=12)
 	ax2.set_ylim([6500, 8000])
@@ -83,7 +87,10 @@ def pupil_preblink(session_df_correct, session_obj):
 	ax.set_xlabel('Outcome', fontsize=14)
 	ax.set_ylabel('Pupil Diameter (mm)', fontsize=14)
 	ax.set_title('Pupil Diameter by Outcome', fontsize=20)
-	ax.set_xticklabels(['Large Airpuff', 'Small Airpuff', 'Small Reward', 'Large Reward'], fontsize=12)
+	if len(df['valence'].unique()) == 4:
+		ax.set_xticklabels(['Large Airpuff', 'Small Airpuff', 'Small Reward', 'Large Reward'], fontsize=12)
+	else:
+		ax.set_xticklabels(['Large Airpuff', 'Small Airpuff', 'Neutral', 'Small Reward', 'Large Reward'], fontsize=12)
 	y_range = list(range(6500, 9000, 500))
 	ax.set_yticks(y_range)
 	ax.set_yticklabels(y_range, fontsize=12)

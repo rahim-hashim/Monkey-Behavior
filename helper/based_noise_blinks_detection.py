@@ -61,7 +61,7 @@ def based_noise_blinks_detection(pupil_size, sampling_freq):
 
 	blink_onset = []
 	blink_offset = []
-	blinks = {"blink_onset": blink_onset, "blink_offset": blink_offset, "blink_duration": 0}
+	blinks = {"blink_onset": blink_onset, "blink_offset": blink_offset, "blink_raster": []}
 
 	pupil_size = np.asarray(pupil_size)
 	missing_data = np.array(pupil_size == 0, dtype="float32")
@@ -164,6 +164,11 @@ def based_noise_blinks_detection(pupil_size, sampling_freq):
 	"""
 	blinks["blink_onset"] = (temp[:, 0] * sampling_interval) + sampling_interval
 	blinks["blink_offset"] = (temp[:, 1] * sampling_interval) + sampling_interval
-	blinks["blink_duration"] = np.sum(blinks["blink_offset"] - blinks["blink_onset"])
+	# make a list of binary values for each blink (1 if blink, 0 if not blink)
+	blink_raster = np.zeros(len(pupil_size))
+	for i in range(len(blinks["blink_onset"])):
+		blink_raster[blinks["blink_onset"][i]:blinks["blink_offset"][i]] = 1
+	blinks["blink_raster"] = blink_raster
+	# blinks["blink_duration"] = np.sum(blinks["blink_offset"] - blinks["blink_onset"])
 
 	return blinks

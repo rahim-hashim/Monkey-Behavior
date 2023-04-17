@@ -44,6 +44,7 @@ class Session:
 		self.tracker_path = ''
 		self.video_path = ''
 		self.parse_stim_labels()
+		self.parse_valence_labels(df)
 		self.generate_colors()
 		self.calculate_datetime()
 		self.find_offscreen_values()
@@ -53,6 +54,32 @@ class Session:
 	def parse_stim_labels(self):
 		unique_fractals = self.df['stimuli_name'].unique()
 		self.stim_labels = sorted([fractal.split('_')[-1] for fractal in unique_fractals])
+
+	def parse_valence_labels(self, df):
+		"""
+		Parses valence labels
+
+		Args:
+			self		: session object
+			df			: session_df DataFrame
+			
+		"""
+		reward_mag = np.array(df['reward_mag'].tolist())
+		airpuff_mag_neg = np.array(df['airpuff_mag'].tolist())*-1
+		valence_mag = reward_mag + airpuff_mag_neg
+		# airpuff
+		if 1 in valence_mag:
+			self.valence_labels[-1] = '(-)(-)'
+		if 0.5 in valence_mag:
+			self.valence_labels[-0.5] = '(-)'
+		# neutral
+		if 0 in valence_mag:
+			self.valence_labels[0] = '(0)'
+		# reward
+		if 0.5 in valence_mag:
+			self.valence_labels[0.5] = '(+)'
+		if 1 in valence_mag:
+			self.valence_labels[1] = '(+)(+)'
 
 	def generate_colors(self):
 		n = len(self.stim_labels)
@@ -137,6 +164,7 @@ class Session:
 		self.reward_outcome_params['reward_length'] = sorted(reward_length_list, reverse=True)
 		self.airpuff_outcome_params['airpuff_pulses'] = sorted(airpuff_mag_list, reverse=True)
 		self.airpuff_outcome_params['airpuff_freq'] = sorted(airpuff_freq_list, reverse=True)
+		self.airpuff_outcome_params['airpuff_mag'] = sorted(airpuff_mag_list, reverse=True)
 
 	def behavior_summary(self, behavioral_code_dict):
 		df = self.df

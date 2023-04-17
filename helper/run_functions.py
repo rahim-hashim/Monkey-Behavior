@@ -1,4 +1,4 @@
-def run_functions(df, session_obj, path_obj, behavioral_code_dict, error_dict, FIGURE_SAVE_PATH):
+def run_functions(df, session_obj, path_obj, behavioral_code_dict, error_dict):
 	"""
 	Runs all analyses functions
 
@@ -8,16 +8,10 @@ def run_functions(df, session_obj, path_obj, behavioral_code_dict, error_dict, F
 		path_obj (Path): path object
 		behavioral_code_dict (dict): dictionary of behavioral codes
 		error_dict (dict): dictionary of error codes
-		FIGURE_SAVE_PATH (str): path to save figures
 
 	Returns:
 		session_obj (Session): updated session object
 	"""
-
-	session_obj.save_paths(path_obj.TARGET_PATH, 
-												 path_obj.TRACKER_PATH, 
-												 path_obj.VIDEO_PATH,
-												 FIGURE_SAVE_PATH)
 
 	from duration_hist import epoch_hist
 	epoch_hist(df, session_obj)

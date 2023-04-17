@@ -82,12 +82,12 @@ def raster_by_condition(session_df, session_obj):
 
 	# keys = each valence, values = list of lick/blink probability data
 	lick_data_probability = defaultdict(list)
-	blink_data_probability = defaultdict(list)
+	DEM_data_probability = defaultdict(list)
 	pupil_data_probability = defaultdict(list)
 
 	# keys = each valence, values = list of lick/blink duration data
 	lick_data_duration = defaultdict(list)
-	blink_data_duration = defaultdict(list)
+	DEM_data_duration = defaultdict(list)
 	pupil_data_duration = defaultdict(list)
 
 	gs_kw = dict(width_ratios=[5, 1, 1])
@@ -112,19 +112,19 @@ def raster_by_condition(session_df, session_obj):
 
 		# keys = each trial, values = list of lick/blink duration data
 		lick_dict = defaultdict(list)
-		blink_dict = defaultdict(list)
+		DEM_dict = defaultdict(list)
 		pupil_dict = defaultdict(list)
 
 		# key 1 = each trial, key 2 = each time bin, values = list of lick/blink duration data
 		lick_epoch_dict = defaultdict(lambda:defaultdict(list))
-		blink_epoch_dict = defaultdict(lambda:defaultdict(list))	
+		DEM_epoch_dict = defaultdict(lambda:defaultdict(list))	
 		pupil_epoch_dict = defaultdict(lambda:defaultdict(list))
 
 		df = session_df_threshold[session_df_threshold['valence'] == valence]
 
 		# valence-specific session lick/blink data
 		lick_data_raster = df['lick_raster'].tolist()
-		blink_data_raster = df['blink_raster'].tolist()
+		DEM_data_raster = df['DEM_raster'].tolist()
 		pupil_data_raster = df['pupil_raster'].tolist()
 
 		# single bin lick data (-<WINDOW_THRESHOLD>ms from trace interval end)
@@ -144,11 +144,11 @@ def raster_by_condition(session_df, session_obj):
 				lick_data_probability[df_index].append(0)
 
 			## counts if there was any blink in the specified time window
-			blink_data_window = df['blink_count_window'].iloc[t_index]
-			if 1 in blink_data_window:
-				blink_data_probability[df_index].append(1)
+			DEM_data_window = df['blink_count_window'].iloc[t_index]
+			if 1 in DEM_data_window:
+				DEM_data_probability[df_index].append(1)
 			else:
-				blink_data_probability[df_index].append(0)
+				DEM_data_probability[df_index].append(0)
 
 			## counts if there was any pupil = 0 (true blink) in the specified time window
 			pupil_data_window = df['pupil_raster_window'].iloc[t_index]
@@ -161,24 +161,24 @@ def raster_by_condition(session_df, session_obj):
 			lick_raw = df['lick_duration'].iloc[t_index]
 			lick_data_duration[df_index].append(lick_raw)
 
-			blink_raw = df['blink_duration_offscreen'].iloc[t_index]
-			blink_data_duration[df_index].append(blink_raw)
+			DEM_raw = df['blink_duration_offscreen'].iloc[t_index]
+			DEM_data_duration[df_index].append(DEM_raw)
 
 			pupil_raw = df['pupil_raster_window_avg'].iloc[t_index]
 			pupil_data_duration[df_index].append(pupil_raw)
 
 			# Lick/Blink/Pupil Blink Epochs
 			lick_data_trial = lick_data_raster[t_index][cs_on_time-PRE_CS:]
-			blink_data_trial = blink_data_raster[t_index][cs_on_time-PRE_CS:]
+			DEM_data_trial = DEM_data_raster[t_index][cs_on_time-PRE_CS:]
 			pupil_data_trial = pupil_data_raster[t_index][cs_on_time-PRE_CS:]
 
 			lick_data_cs = lick_data_raster[t_index][cs_on_time:trace_on_time]
 			lick_data_trace = lick_data_raster[t_index][trace_on_time:trace_off_time]
 			lick_data_outcome = lick_data_raster[t_index][trace_off_time:]
 
-			blink_data_cs = blink_data_raster[t_index][cs_on_time:trace_on_time]
-			blink_data_trace = blink_data_raster[t_index][trace_on_time:trace_off_time]
-			blink_data_outcome = blink_data_raster[t_index][trace_off_time:]
+			DEM_data_cs = DEM_data_raster[t_index][cs_on_time:trace_on_time]
+			DEM_data_trace = DEM_data_raster[t_index][trace_on_time:trace_off_time]
+			DEM_data_outcome = DEM_data_raster[t_index][trace_off_time:]
 
 			pupil_data_cs = pupil_data_raster[t_index][cs_on_time:trace_on_time]
 			pupil_data_trace = pupil_data_raster[t_index][trace_on_time:trace_off_time]
@@ -186,34 +186,33 @@ def raster_by_condition(session_df, session_obj):
 
 			time = np.arange(len(lick_data_trial))
 
-			# lick_data_trial and blink_data_trial are sometimes off by 1 frame
+			# lick_data_trial and DEM_data_trial are sometimes off by 1 frame
 			# 	must investigate further
-			shorter_trial_data = min(len(lick_data_trial), len(blink_data_trial), len(pupil_data_trial))
+			shorter_trial_data = min(len(lick_data_trial), len(DEM_data_trial), len(pupil_data_trial))
 			for bin_num in range(shorter_trial_data):
 				lick_dict[bin_num].append(lick_data_trial[bin_num])
-				blink_dict[bin_num].append(blink_data_trial[bin_num])
+				DEM_dict[bin_num].append(DEM_data_trial[bin_num])
 				pupil_dict[bin_num].append(pupil_data_trial[bin_num])
 
 			for bin_num in range(cs_time_min):
 				lick_epoch_dict['CS'][bin_num].append(lick_data_cs[bin_num])
-				blink_epoch_dict['CS'][bin_num].append(blink_data_cs[bin_num])
+				DEM_epoch_dict['CS'][bin_num].append(DEM_data_cs[bin_num])
 				pupil_epoch_dict['CS'][bin_num].append(pupil_data_cs[bin_num])
 			for bin_num in range(trace_time_min-cs_time_min):
 				lick_epoch_dict['Trace'][bin_num].append(lick_data_trace[bin_num])
-				blink_epoch_dict['Trace'][bin_num].append(blink_data_trace[bin_num])
+				DEM_epoch_dict['Trace'][bin_num].append(DEM_data_trace[bin_num])
 				pupil_epoch_dict['Trace'][bin_num].append(pupil_data_trace[bin_num])
 			for bin_num in range(outcome_time_min-cs_time_min):
 				lick_epoch_dict['Outcome'][bin_num].append(lick_data_outcome[bin_num])
-				blink_epoch_dict['Outcome'][bin_num].append(blink_data_outcome[bin_num])
+				DEM_epoch_dict['Outcome'][bin_num].append(DEM_data_outcome[bin_num])
 				pupil_epoch_dict['Outcome'][bin_num].append(pupil_data_outcome[bin_num])
 
 		# Now analyze all trials together
 
 		bins = list(lick_dict.keys())
 		lick_data_mean = list(map(np.mean, lick_dict.values()))
-		blink_data_mean = list(map(np.mean, blink_dict.values()))
+		DEM_data_mean = list(map(np.mean, DEM_dict.values()))
 		pupil_data_raster_mean = list(map(np.mean, pupil_dict.values()))
-
 		label = session_obj.valence_labels[valence]
 
 		# Simple Moving Average Smoothing
@@ -222,7 +221,7 @@ def raster_by_condition(session_df, session_obj):
 		y1 = moving_avg(lick_data_mean, WINDOW_SIZE)
 		axarr[0][0].plot(x, y1[:-1], 
 										color=color_list[df_index], label=label, linewidth=4)
-		y2 = moving_avg(blink_data_mean, WINDOW_SIZE)
+		y2 = moving_avg(DEM_data_mean, WINDOW_SIZE)
 		axarr[1][0].plot(x, y2[:-1], 
 										color=color_list[df_index], label=label, linewidth=4)
 		y3 = moving_avg(pupil_data_raster_mean, WINDOW_SIZE)
@@ -249,7 +248,7 @@ def raster_by_condition(session_df, session_obj):
 	# DEM
 	axarr[1][1].set_title('Delay\n(last {}ms)'.format(WINDOW_THRESHOLD_BLINK))
 	axarr[1][2].set_title('Delay\n(last {}ms)'.format(WINDOW_THRESHOLD_BLINK))
-	# blink
+	# Pupil Zero
 	axarr[2][1].set_title('Delay\n(last {}ms)'.format(WINDOW_THRESHOLD_LICK))
 	axarr[2][2].set_title('Delay\n(last {}ms)'.format(WINDOW_THRESHOLD_LICK))
 
@@ -268,8 +267,8 @@ def raster_by_condition(session_df, session_obj):
 	axarr[2][0].set_xlabel('Time since visual stimuli onset (ms)', fontsize=26)
 	axarr[2][0].set_yticks(np.arange(0,1.2,0.2))
 	
-	probability_list = [lick_data_probability, blink_data_probability, pupil_data_probability]
-	duration_list = [lick_data_duration, blink_data_duration, pupil_data_duration]
+	probability_list = [lick_data_probability, DEM_data_probability, pupil_data_probability]
+	duration_list = [lick_data_duration, DEM_data_duration, pupil_data_duration]
 	label_list_prob = ['Lick Probability', 'DEM Probability', 'Blink Probability']
 	label_list_dur = ['Avg Lick Duration', 'Avg DEM Duration', 'Avg Blink Duration']
 

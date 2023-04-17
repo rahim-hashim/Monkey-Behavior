@@ -35,4 +35,5 @@ class Path:
 		self.EXCEL_PATH = os.path.join(self.TRACKER_PATH, 'Emotion_Tracker.xlsx')
 
 		# Video Path
-		self.VIDEO_PATH = os.path.join(ROOT, 'Monkey-Emotion-Behavior', 'Video')
+		# self.VIDEO_PATH = os.path.join(ROOT, 'Monkey-Emotion-Behavior', 'Video') # FLIR
+		self.VIDEO_PATH = os.path.join(self.TASK_PATH, 'videos') # ML Webcam

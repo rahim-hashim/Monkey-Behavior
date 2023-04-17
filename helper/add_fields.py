@@ -34,7 +34,6 @@ def add_epoch_times(df, behavioral_code_dict):
 				epoch_dict[epoch_name].append(int(times[epoch_marker]))
 			except:
 				epoch_dict[epoch_name].append(np.nan)
-
 	for k_index, key in enumerate(epoch_dict.keys()):
 		if key != 'Not assigned':
 			df[key] = list(epoch_dict.values())[k_index]
@@ -113,7 +112,7 @@ def lick_window(trial):
 	#lick_mean = np.mean(lick_window_list_flat)
 	return lick_raster
 
-def blink_window(trial):
+def DEM_window(trial):
 	"""
 	Generates an array for each trial of rasterized blink data
 			
@@ -121,7 +120,7 @@ def blink_window(trial):
 			trial: row in session_df DataFrame
 			
 		Returns:
-			blink_raster: rasterized blink data for each ms window
+			DEM_raster: rasterized defensive eye movement (DEM) data for each ms window
 	"""
 
 	# EyeLink (x,y) values for eyes offscreen
@@ -134,9 +133,9 @@ def blink_window(trial):
 	eye_y_abs = [abs(y) for y in eye_y]
 
 	eye_zipped = list(map(max, zip(eye_x_abs, eye_y_abs)))
-	blink_raster = trace_to_raster(eye_zipped, BLINK_SIGNAL)
+	DEM_raster = trace_to_raster(eye_zipped, BLINK_SIGNAL)
 
-	return blink_raster
+	return DEM_raster
 
 def trial_bins(trial):
 	"""
@@ -233,40 +232,52 @@ def outcome_count_window(trial, session_obj):
 	TRACE_WINDOW_LICK = session_obj.window_lick
 	TRACE_WINDOW_BLINK = session_obj.window_blink
 	lick_raster = trial['lick_raster']
-	eye_raster = trial['blink_raster']
+	DEM_raster = trial['DEM_raster']
 	pupil_data = trial['eye_pupil']
 	pupil_raster = [1 if x == 0 else 0 for x in pupil_data]
+	trace_on_time = trial['Trace Start']
 	trace_off_time = trial['Trace End']
-	try:
+	if not pd.isna(trace_off_time):
 		lick_data_window = lick_raster[trace_off_time-TRACE_WINDOW_LICK:trace_off_time]
-		blink_data_window = eye_raster[trace_off_time-TRACE_WINDOW_BLINK:trace_off_time]
+		DEM_data_window = DEM_raster[trace_off_time-TRACE_WINDOW_BLINK:trace_off_time]
 		pupil_data_window = pupil_data[trace_off_time-TRACE_WINDOW_BLINK:trace_off_time]
-		blink_raster = [1 if x == 0 else 0 for x in pupil_data_window]
-		blink_count = 1 if 1 in blink_raster else 0	
+		pupil_zero_raster = [1 if x == 0 else 0 for x in pupil_data_window]
+		blink_count = 1 if 1 in pupil_zero_raster else 0	
 		# blink detection based on Hershman 2018 work
-		blink_dict = based_noise_blinks_detection(pupil_data_window, sampling_freq=1000)
+		blink_dict = based_noise_blinks_detection(pupil_data, sampling_freq=1000)
 		blink_onset = blink_dict['blink_onset']
 		blink_offset = blink_dict['blink_offset']
-		blink_duration = blink_dict['blink_duration']/TRACE_WINDOW_BLINK
-	except: # error before 'Trace End'
+		blink_raster = blink_dict['blink_raster']
+		# if there is a blink within the window
+		if len(blink_onset) > 0:
+			blink_raster_window = blink_raster[trace_off_time-TRACE_WINDOW_BLINK:trace_off_time]
+			blink_duration_window = np.mean(blink_raster_window)
+		else:
+			blink_raster_window = [np.nan]
+			blink_duration_window = np.nan
+	else: # error before 'Trace End'
 		lick_data_window = np.nan
-		blink_data_window = np.nan	
+		DEM_data_window = np.nan	
 		pupil_data_window = np.nan	
-		blink_raster = np.nan	
+		pupil_zero_raster = np.nan	
 		blink_count = np.nan
 		blink_onset = [np.nan]
 		blink_offset = [np.nan]
-		blink_duration = np.nan
+		blink_raster = [np.nan]
+		blink_raster_window = [np.nan]
+		blink_duration_window = np.nan
 	trial['lick_count_window'] = lick_data_window
-	trial['blink_count_window'] = blink_data_window
+	trial['blink_count_window'] = DEM_data_window
 	trial['pupil_data_window'] = pupil_data_window
 	trial['pupil_raster'] = pupil_raster
-	trial['pupil_raster_window'] = blink_raster
-	trial['pupil_raster_window_avg'] = np.mean(blink_raster)
+	trial['pupil_raster_window'] = pupil_zero_raster
+	trial['pupil_raster_window_avg'] = np.mean(pupil_zero_raster)
 	trial['pupil_binary_zero'] = blink_count
 	trial['blink_onset'] = blink_onset
 	trial['blink_offset'] = blink_offset
-	trial['blink_duration'] = blink_duration
+	trial['blink_raster'] = blink_raster
+	trial['blink_raster_window'] = blink_raster_window
+	trial['blink_duration_window'] = blink_duration_window
 	return trial
 
 def pupil_pre_CS(trial):
@@ -388,31 +399,6 @@ def prelim_behavior_analysis(df, session_obj, behavioral_code_dict):
 	session_obj.blink_duration['all'] = avg_blink_all
 	return session_obj
 
-def parse_valence_labels(df, session_obj):
-	"""
-	Parses valence labels
-
-	Args:
-		df						: session_df DataFrame
-		session_obj		: session object
-
-	Returns:
-		session_obj: session object with updated valence labels
-	"""
-	valence_labels = sorted(df['valence'].unique(), reverse=True)
-	for valence in valence_labels:
-		if valence == -1:
-			session_obj.valence_labels[valence] = '(-)(-)'
-		elif valence == -0.5:
-			session_obj.valence_labels[valence] = '(-)'
-		elif valence == 0:
-			session_obj.valence_labels[valence] = '(0)'
-		elif valence == 0.5:
-			session_obj.valence_labels[valence] = '(+)'
-		elif valence == 1:
-			session_obj.valence_labels[valence] = '(+)(+)'
-	return session_obj
-
 def add_fields(df, session_obj, behavioral_code_dict):
 	print('Adding additional fields to session_df DataFrame...')
 
@@ -425,7 +411,7 @@ def add_fields(df, session_obj, behavioral_code_dict):
 	df = add_epoch_times(df, behavioral_code_dict)
 	df['valence'] = df.apply(valence_assignment, axis=1)
 	df['lick_raster'] = df.apply(lick_window, axis=1)
-	df['blink_raster'] = df.apply(blink_window, axis=1)
+	df['DEM_raster'] = df.apply(DEM_window, axis=1)
 	df['trial_bins'] = df.apply(trial_bins, axis=1)
 	df['trial_in_block'] = trial_in_block(df)
 	df['fractal_count_in_block'] = fractal_in_block(df)
@@ -452,7 +438,6 @@ def add_fields(df, session_obj, behavioral_code_dict):
 	print('  {} new fields added.'.format(20))
 
 	session_obj = prelim_behavior_analysis(df, session_obj, behavioral_code_dict)
-	session_obj = parse_valence_labels(df, session_obj)
 
 	# clear rows with valence == nan
 	df = df[df['valence'].notnull()]

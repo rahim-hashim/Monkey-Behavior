@@ -68,7 +68,19 @@ def clean_rows(ws, headers):
 	return dates, sessions
 
 def behavior_summary(df, session_obj):
-	TRIAL_THRESHOLD = 20
+	"""
+	Captures lick, DEM, and blink behavior for each valence
+
+	Args:
+		df: pandas dataframe of session data
+		session_obj: session object
+
+	Returns:
+		lick_mean: list of lick duration means for each valence
+		DEM_mean: list of DEM duration means for each valence
+		blink_mean: list of blink duration means for each valence
+	"""
+	TRIAL_THRESHOLD = 10
 	df_correct = df[df['correct'] == 1]
 	# only include trials after subject has seen fractal <TRIAL_THRESHOLD> number of times
 	session_df_count = df_correct[df_correct['fractal_count_in_block'] > TRIAL_THRESHOLD]
@@ -76,17 +88,17 @@ def behavior_summary(df, session_obj):
 	lick_mean = []
 	DEM_mean = []
 	blink_mean = []
-	valences_selected = [1.0, 0.5, -0.5, -1.0]
+	valences_selected = [1.0, 0.5, 0, -0.5, -1.0]
 	for valence in valences_selected:
 		valence_df = session_df_count[session_df_count['valence'] == valence]
 		if valence_df.empty:
 			lick_mean.append(np.nan)
 			DEM_mean.append(np.nan)
 			blink_mean.append(np.nan)
-			continue
-		lick_mean.append(valence_df['lick_duration'].mean())
-		DEM_mean.append(valence_df['blink_duration_offscreen'].mean())
-		blink_mean.append(valence_df['pupil_raster_window_avg'].mean())
+		else:
+			lick_mean.append(valence_df['lick_duration'].mean())
+			DEM_mean.append(valence_df['blink_duration_offscreen'].mean())
+			blink_mean.append(valence_df['pupil_raster_window_avg'].mean())
 
 	return lick_mean, DEM_mean, blink_mean
 
