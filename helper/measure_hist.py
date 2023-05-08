@@ -81,7 +81,7 @@ def measure_hist(df, session_obj):
 		# DEM
 		sns.kdeplot(ax=ax2,
 								data=df_valence,
-								x='blink_duration_offscreen',  
+								x='blink_count_window',  
 								color=COLORS[valence], 
 								label=LABELS[valence],
 								fill=True,
@@ -89,14 +89,14 @@ def measure_hist(df, session_obj):
 								cut=0)
 		sns.ecdfplot(ax=ax5,
 								 data=df_valence,
-								 x='blink_duration_offscreen',
+								 x='blink_count_window',
 								 color=COLORS[valence],
 								 label=LABELS[valence],
 								 linewidth=2)
 		# Blink
 		sns.kdeplot(ax=ax3,
 								data=df_valence,
-								x='pupil_raster_window_avg',  
+								x='blink_duration_offscreen',  
 								color=COLORS[valence], 
 								label=LABELS[valence],
 								fill=True,
@@ -104,7 +104,7 @@ def measure_hist(df, session_obj):
 								cut=0)
 		sns.ecdfplot(ax=ax6,
 								 data=df_valence,
-								 x='pupil_raster_window_avg',
+								 x='blink_duration_offscreen',
 								 color=COLORS[valence],
 								 label=LABELS[valence],
 								 linewidth=2)

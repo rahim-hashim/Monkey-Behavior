@@ -12,10 +12,15 @@ def get_frames(file_path):
    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
    # Get frame rate
    frame_rate = int(cap.get(cv2.CAP_PROP_FPS))
+   # Get frame size
+   frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+   frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+   frame_size = (frame_width, frame_height)
    # Get duration
    duration = frame_count / frame_rate
    print('  Frame Count  : ', frame_count)
    print('  Frame Rate   : ', frame_rate)
+   print(f'  Frame Size   :  {frame_width} x {frame_height}')
    # Check if the video file was successfully opened
    if not cap.isOpened():
       print("Error opening video file")
@@ -30,7 +35,7 @@ def get_frames(file_path):
       frames.append(frame)
    cap.release()
    cv2.destroyAllWindows()
-   return frames
+   return frames, frame_size
 
 def find_epoch_frames(epoch_selected, trial_frame_times, epoch_start, epoch_end, v_index):
    '''
@@ -50,6 +55,7 @@ def find_epoch_frames(epoch_selected, trial_frame_times, epoch_start, epoch_end,
    '''
    epoch_start_time = epoch_start[v_index]
    epoch_end_time = epoch_end[v_index]
+   print('Timings:')
    print(f'  {epoch_selected}  Dur   :  {epoch_end_time-epoch_start_time}')
    # Find the closest frame to the trace start and end times
    start_frame = min(trial_frame_times, key=lambda x: abs(x - epoch_start_time))
@@ -96,7 +102,7 @@ def video_parsing(df, session_obj, trial_specified=None):
       df = df[df['trial_num'] == trial_specified]
    list_files = df['cam1_trial_name'].tolist()
    list_frame_times = df['cam1_trial_time'].tolist()
-   epoch_selected = 'Trace'
+   epoch_selected = 'Outcome'
    behavior_parsing(df, session_obj, epoch_selected)
    eye_x = df['eye_x'].tolist()[0]
    eye_y = df['eye_y'].tolist()[0]
@@ -124,13 +130,12 @@ def video_parsing(df, session_obj, trial_specified=None):
          print('Video File: ', file_name)
          trial_frame_times = list_frame_times[v_index]
          # Get all frames from the video file
-         frames = get_frames(file_path)
+         frames, frame_size = get_frames(file_path)
          # Find the frames that correspond to the trace start and end times
          epoch_start_time, frame_start_index, frame_end_index, start_frame, end_frame = \
             find_epoch_frames(epoch_selected, trial_frame_times, epoch_start, epoch_end, v_index)
          for f_index, frame in enumerate(frames[frame_start_index:frame_end_index]):
             frame_time_in_epoch = round(trial_frame_times[f_index+frame_start_index] - epoch_start_time)
-            cv2.putText(frame, 'Time: '+str(frame_time_in_epoch), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             lick_binary = lick_raster_epoch[frame_time_in_epoch]
             pupil_binary = round(pupil_raster_epoch[frame_time_in_epoch])
             blink_binary = round(blink_raster_epoch[frame_time_in_epoch])
@@ -146,6 +151,9 @@ def video_parsing(df, session_obj, trial_specified=None):
                blink_color = (255, 0, 0)
             else:
                blink_color = (255, 255, 255)
+            if frame_size == (320, 240):
+               frame = cv2.resize(frame, (640, 480))
+            cv2.putText(frame, 'Time: '+str(frame_time_in_epoch), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             cv2.putText(frame, f'Eye X/Y: ({round(eye_x_epoch[frame_time_in_epoch], 1)},{round(eye_y_epoch[frame_time_in_epoch], 1)})', 
                   (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             cv2.putText(frame, 'Lick: '+str(lick_binary), 

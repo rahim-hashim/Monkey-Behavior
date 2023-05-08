@@ -37,12 +37,12 @@ def session_lick(df: pd.DataFrame, session_obj: Session):
 
     df_fractal = df[df['stimuli_name'] == fractal]
 
-    df_fractal['block_change'] = df_fractal['block'].diff()
+    df_fractal['block_change'] = df_fractal['condition'].diff()
     block_change = np.nonzero(df_fractal['block_change'].tolist())[0]
 
     # Lick / Reward Plot
     lick = df_fractal['lick_in_window']
-    lick = [r+0.1 if r==1 else r-0.1 for r in lick]
+    lick = [r+0.125 if r==1 else r-0.125 for r in lick]
 
     lick_raster_window = df_fractal['lick_count_window'].tolist()
     lick_raster_window = list(map(np.mean, lick_raster_window))
@@ -54,13 +54,24 @@ def session_lick(df: pd.DataFrame, session_obj: Session):
     axarr1[df_index].scatter(np.array(x1), lick, s=4, color=COLORS[df_index])
 
     axarr1[df_index].set_title('Fractal {}'.format(LABELS[df_index], fontsize=12))
-
-    for change_trial in block_change[1:]:
+    # label valence in blocks
+    block_change_prop = list(map(lambda x: (x+1)/len(df_fractal), block_change))
+    for c_index, change_trial in enumerate(block_change):
+      last_trial_valence = df_fractal['valence'].iloc[change_trial]
+      valence_color = session_obj.valence_colors[last_trial_valence]
+      axarr1[df_index].axhline(1.225, block_change_prop[c_index], block_change_prop[c_index+1], c=valence_color, lw=2.5)
+      if c_index == len(block_change)-2:
+        first_trial_valence = df_fractal['valence'].iloc[block_change[c_index+1]+1]
+        valence_color = session_obj.valence_colors[first_trial_valence]
+        axarr1[df_index].axhline(1.225, block_change_prop[c_index+1], 1, c=valence_color, lw=2.5)
+        break
+    for c_index, change_trial in enumerate(block_change[1:]):
       axarr1[df_index].axvline(change_trial, c='grey', alpha=0.5)
+
 
     # Blink Plot
     blink = df_fractal['pupil_binary_zero']
-    blink = [a+0.1 if a==1 else a-0.1 for a in blink]
+    blink = [a+0.125 if a==1 else a-0.125 for a in blink]
 
     blink_raster_window = df_fractal['pupil_binary_zero'].tolist()
     x2 = np.arange(len(blink_raster_window))
@@ -71,13 +82,22 @@ def session_lick(df: pd.DataFrame, session_obj: Session):
 
     axarr2[df_index].set_title('Fractal {}'.format(LABELS[df_index], fontsize=8))
 
-    for change_trial in block_change[1:]:
+    for c_index, change_trial in enumerate(block_change):
+      last_trial_valence = df_fractal['valence'].iloc[change_trial]
+      valence_color = session_obj.valence_colors[last_trial_valence]
+      axarr2[df_index].axhline(1.225, block_change_prop[c_index], block_change_prop[c_index+1], c=valence_color, lw=2.5)
+      if c_index == len(block_change)-2:
+        first_trial_valence = df_fractal['valence'].iloc[block_change[c_index+1]+1]
+        valence_color = session_obj.valence_colors[first_trial_valence]
+        axarr2[df_index].axhline(1.225, block_change_prop[c_index+1], 1, c=valence_color, lw=2.5)
+        break
+    for c_index, change_trial in enumerate(block_change[1:]):
       axarr2[df_index].axvline(change_trial, c='grey', alpha=0.5)
 
   f1.supylabel('Lick Trace Avg\n(Last {}ms of Delay)'.format(LICK_WINDOW_THRESHOLD))
   axarr1[0].set_xlabel('Trial Count')
-  axarr1[0].set_ylim([-0.15, 1.15])
-  axarr1[0].set_yticks([-0.15, 0, 1, 1.15])
+  axarr1[0].set_ylim([-0.3, 1.3])
+  axarr1[0].set_yticks([-0.3, 0, 1, 1.3])
   axarr1[0].set_yticklabels(['', '0', '1', ''])
   f1.tight_layout()
   img_save_path = os.path.join(FIGURE_SAVE_PATH, 'session_lick_avg')
@@ -86,8 +106,8 @@ def session_lick(df: pd.DataFrame, session_obj: Session):
 
   f2.supylabel('Probability of Blink\n(Last {}ms of Delay)'.format(BLINK_WINDOW_THRESHOLD))
   axarr2[0].set_xlabel('Trial Count')
-  axarr2[0].set_ylim([-0.15, 1.15])
-  axarr2[0].set_yticks([-0.15, 0, 1, 1.15])
+  axarr2[0].set_ylim([-0.3, 1.3])
+  axarr2[0].set_yticks([-0.3, 0, 1, 1.3])
   axarr2[0].set_yticklabels(['', '0', '1', ''])
   f2.tight_layout()
   img_save_path = os.path.join(FIGURE_SAVE_PATH, 'session_blink_avg')

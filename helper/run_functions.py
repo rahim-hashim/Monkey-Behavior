@@ -44,8 +44,8 @@ def run_functions(df, session_obj, path_obj, behavioral_code_dict, error_dict):
 	from grant_plots import grant_plots
 	grant_plots(df, session_obj)
 
-	from measure_hist import measure_hist
-	measure_hist(df, session_obj)
+	# from measure_hist import measure_hist
+	# measure_hist(df, session_obj)
 
 	from eyetracking_analysis import eyetracking_analysis
 	eyetracking_analysis(df, session_obj, TRIAL_THRESHOLD=10)

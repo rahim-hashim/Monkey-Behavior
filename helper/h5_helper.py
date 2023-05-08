@@ -15,13 +15,6 @@ from add_fields import add_fields
 from IPython.display import display
 from session_parse_helper import session_parser, camera_parser
 
-def h5_pull(current_dir):
-  """Look for all .h5 extension files in directory"""
-  print('Pulling \'.h5\' files...')
-  h5_filenames = [f for f in current_dir if f[-3:] == '.h5']
-  print('  Complete: {} \'.h5\' files pulled'.format(len(h5_filenames)))
-  return h5_filenames
-
 def h5_load(file_name):
   """Loads h5 datasets into a python object"""
   f = h5py.File(file_name, 'r')
@@ -187,14 +180,12 @@ def file_selector(file_dir, all_selected_dates, monkey_input):
           dates_array.append(date_formatted)
     return files_selected, dates_array
 
-def h5_to_df(current_path, target_path, h5_filenames, start_date, end_date, monkey_input, save_df):
+def h5_to_df(path_obj, start_date, end_date, monkey_input, save_df):
   """Converts specified (by date) .h5 files to DataFrame and pickles 
 
   Args:
-    current_path: 
-      root+datapath (specified in monkey_behavior.ipynb)
-    h5_filenames: 
-      names of all the pulled .h5 files
+    path_obj: 
+      Path object containing all paths (specified in monkey_behavior.ipynb)
     start_date: 
       first date pulled (specified in monkey_behavior.ipynb)
     end_date: 
@@ -215,20 +206,20 @@ def h5_to_df(current_path, target_path, h5_filenames, start_date, end_date, monk
       dictionary containing error mapping
   """
   all_selected_dates = date_selector(start_date, end_date)
-  h5_files_selected, dates_array = file_selector(h5_filenames, all_selected_dates, monkey_input)
+  h5_files_selected, dates_array = file_selector(path_obj.raw_data_directory, all_selected_dates, monkey_input)
   python_converted_files = []
   if h5_files_selected:
     print('Loading selected file(s):')
     for f in h5_files_selected:
-      file_name = os.path.join(current_path, f)
+      file_name = os.path.join(path_obj.raw_data_path, f)
       if os.path.exists(file_name):
         python_converted_files.append(h5_load(file_name))
         print('  {} - Completed'.format(f))
       else:
         print('  {} - Missing'.format(f))
   else:
-    print(f'All files: {current_path}')
-    for f in h5_filenames:
+    print(f'All files: {path_obj.raw_data_path}')
+    for f in path_obj.raw_data_directory:
       print(' ', f)
     raise RuntimeError('No file found - check directory')
 
@@ -253,7 +244,7 @@ def h5_to_df(current_path, target_path, h5_filenames, start_date, end_date, monk
                                                session_obj, 
                                                behavioral_code_dict)  
       # pickles each session
-      pickler(save_df, target_path, session_df_new, monkey_input, experiment_name,
+      pickler(save_df, path_obj.target_path, session_df_new, monkey_input, experiment_name,
               error_dict, behavioral_code_dict)
       if f_index == 0:
         session_df = session_df_new

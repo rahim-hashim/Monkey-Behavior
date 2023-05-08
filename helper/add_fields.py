@@ -60,7 +60,7 @@ def valence_assignment(row):
 			valence = -0.5
 		elif row['airpuff_mag'] == 0:
 			valence = 0
-	# reward
+	# reward 
 	else:
 		if row['reward_mag'] == 1:
 			valence = 1
@@ -247,14 +247,10 @@ def outcome_count_window(trial, session_obj):
 		blink_dict = based_noise_blinks_detection(pupil_data, sampling_freq=1000)
 		blink_onset = blink_dict['blink_onset']
 		blink_offset = blink_dict['blink_offset']
+		# blink raster is a binary vector with 1s for blinks and 0s for non-blinks
 		blink_raster = blink_dict['blink_raster']
-		# if there is a blink within the window
-		if len(blink_onset) > 0:
-			blink_raster_window = blink_raster[trace_off_time-TRACE_WINDOW_BLINK:trace_off_time]
-			blink_duration_window = np.mean(blink_raster_window)
-		else:
-			blink_raster_window = [np.nan]
-			blink_duration_window = np.nan
+		blink_raster_window = blink_raster[trace_off_time-TRACE_WINDOW_BLINK:trace_off_time]
+		blink_duration_window = np.mean(blink_raster_window)
 	else: # error before 'Trace End'
 		lick_data_window = np.nan
 		DEM_data_window = np.nan	

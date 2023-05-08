@@ -54,7 +54,7 @@ def based_noise_blinks_detection(pupil_size, sampling_freq):
 		concat              : [boolean] concatenate close blinks/missing trials or not. See R. Hershman et. al. for more information
 		concat_gap_interval : [float] interval between successive missing samples/blinks to concatenate
 	Output:
-		blinks              : [dictionary] {"blink_onset", "blink_offset"} containing numpy array/list of blink onset and offset indices
+		blinks              : [dictionary] {"blink_onset", "blink_offset", "blink_raster"} containing numpy array/list of blink onset, offset indices, and raster of blinks
 	"""
 	sampling_interval = 1000 // sampling_freq
 	concat_gap_interval = 100
@@ -75,6 +75,8 @@ def based_noise_blinks_detection(pupil_size, sampling_freq):
 
 	# Edge Case 1: there are no blinks
 	if (length_blinks == 0):
+		blink_raster = np.zeros(len(pupil_size))
+		blinks["blink_raster"] = blink_raster
 		return blinks
 
 

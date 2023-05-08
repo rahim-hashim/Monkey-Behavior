@@ -29,14 +29,13 @@ def image_diff(session_df, session_obj, path_obj, combine_dates):
   image_diff calculates the difference
   between two images
   """
-  TASK_PATH = path_obj.TASK_PATH
-  TRACKER_PATH = path_obj.TRACKER_PATH
+  TRACKER_PATH = path_obj.tracker_path
   dates = session_df['date'].unique()
   dates_formatted = []
   for date in dates:
     date_formatted = '20' + date
     dates_formatted.append(date_formatted)
-    FRACTAL_PATH = os.path.join(TASK_PATH, '_fractals', date_formatted)
+    FRACTAL_PATH = os.path.join(path_obj.fractal_path, date_formatted)
     COLOR_LIST = session_obj.colors
 
     img_list = sorted([os.path.join(FRACTAL_PATH, img) for img in os.listdir(FRACTAL_PATH) \
