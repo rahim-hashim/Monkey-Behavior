@@ -1,9 +1,20 @@
 import os
 import cv2
 import sys
+import math
+import itertools
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from collections import defaultdict
+# cvzone
+import cvzone
+from cvzone.PlotModule import LivePlot
+from cvzone.FaceMeshModule import FaceMeshDetector
+# Custom classes
+from classes import FaceLandmarks
+# Custom functions
+from eye_capture import frame_eye_capture
 
 def get_frames(file_path):
    '''Implements OpenCV to read video file and return a list of frames'''
@@ -153,6 +164,7 @@ def video_parsing(df, session_obj, trial_specified=None):
                blink_color = (255, 255, 255)
             if frame_size == (320, 240):
                frame = cv2.resize(frame, (640, 480))
+            frame = frame_eye_capture(frame, v_index)
             cv2.putText(frame, 'Time: '+str(frame_time_in_epoch), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             cv2.putText(frame, f'Eye X/Y: ({round(eye_x_epoch[frame_time_in_epoch], 1)},{round(eye_y_epoch[frame_time_in_epoch], 1)})', 
                   (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)

@@ -22,7 +22,7 @@ def preprocess_data(path_obj, start_date, end_date, monkey_input, experiment_nam
     target_dir = os.listdir(path_obj.target_path)
     pkl_files_selected, dates_array = h5_helper.file_selector(target_dir, all_selected_dates, monkey_input)
     print('Pickled Files:')
-    pprint(pkl_files_selected)
+    pprint(pkl_files_selected, indent=2)
     for f_index, f in enumerate(pkl_files_selected):
       target_pickle = os.path.join(path_obj.target_path, f)
       if os.path.exists(target_pickle):

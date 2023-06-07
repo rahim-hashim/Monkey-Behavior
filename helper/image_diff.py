@@ -36,6 +36,7 @@ def image_diff(session_df, session_obj, path_obj, combine_dates):
     date_formatted = '20' + date
     dates_formatted.append(date_formatted)
     FRACTAL_PATH = os.path.join(path_obj.fractal_path, date_formatted)
+    print('Looking for images from: {}'.format(FRACTAL_PATH))
     COLOR_LIST = session_obj.colors
 
     img_list = sorted([os.path.join(FRACTAL_PATH, img) for img in os.listdir(FRACTAL_PATH) \

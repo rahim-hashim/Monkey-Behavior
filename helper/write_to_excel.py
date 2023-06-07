@@ -119,7 +119,7 @@ def outcome_params(session_obj):
 
 def write_to_excel(df, session_obj, path_obj, verbose=False):
 	print('Writing to excel...')
-	EXCEL_PATH = path_obj.EXCEL_PATH
+	EXCEL_PATH = path_obj.excel_path
 	excel_path_file = os.path.basename(os.path.normpath(EXCEL_PATH))
 	wb = load_workbook(filename = EXCEL_PATH)
 	ws = wb['Data']
