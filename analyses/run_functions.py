@@ -16,7 +16,7 @@ def run_functions(session_df, session_obj, path_obj, behavioral_code_dict, error
 	from analyses.session_performance import session_performance
 	# All trials required to analyze performance
 	session_performance(session_df, behavioral_code_dict, session_obj)
-
+	
 	# Only correct trials for all other analyses
 	df = session_df[session_df['correct'] == 1]
 
@@ -51,7 +51,7 @@ def run_functions(session_df, session_obj, path_obj, behavioral_code_dict, error
 	from analyses.grant_plots import grant_plots
 	grant_plots(df, session_obj)
 
-	# from measure_hist import measure_hist
+	# from analyses.measure_hist import measure_hist
 	# measure_hist(df, session_obj)
 
 	from analyses.eyetracking_analysis import eyetracking_analysis

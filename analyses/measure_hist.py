@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from sklearn.neighbors import KernelDensity
 from itertools import combinations, permutations
 # Custom modules
-from two_sample_test import generate_data_dict
+from analyses.two_sample_test import generate_data_dict
 
 def ks_test(df, session_obj):
 	"""
@@ -66,6 +66,7 @@ def measure_hist(df, session_obj):
 		df_valence = df[df['valence'] == valence]
 		# Lick
 		lick_data = np.array(df_valence['lick_duration'])
+		blink_data = np.array(df_valence['blink_raster_window'])
 		sns.kdeplot(ax=ax1,
 								data=lick_data,  
 								color=COLORS[valence], 
@@ -78,33 +79,29 @@ def measure_hist(df, session_obj):
 								 color=COLORS[valence],
 								 label=LABELS[valence],
 								 linewidth=2)
-		# DEM
-		sns.kdeplot(ax=ax2,
-								data=df_valence,
-								x='blink_count_window',  
-								color=COLORS[valence], 
-								label=LABELS[valence],
-								fill=True,
-								linewidth=2,
-								cut=0)
-		sns.ecdfplot(ax=ax5,
-								 data=df_valence,
-								 x='blink_count_window',
-								 color=COLORS[valence],
-								 label=LABELS[valence],
-								 linewidth=2)
+		# # DEM
+		# sns.kdeplot(ax=ax2,
+		# 						data=blink_data, 
+		# 						color=COLORS[valence], 
+		# 						label=LABELS[valence],
+		# 						fill=True,
+		# 						linewidth=2,
+		# 						cut=0)
+		# sns.ecdfplot(ax=ax5,
+		# 						 data=blink_data,
+		# 						 color=COLORS[valence],
+		# 						 label=LABELS[valence],
+		# 						 linewidth=2)
 		# Blink
 		sns.kdeplot(ax=ax3,
-								data=df_valence,
-								x='blink_duration_offscreen',  
+								data=blink_data,
 								color=COLORS[valence], 
 								label=LABELS[valence],
 								fill=True,
 								linewidth=2,
 								cut=0)
 		sns.ecdfplot(ax=ax6,
-								 data=df_valence,
-								 x='blink_duration_offscreen',
+								 data=blink_data,
 								 color=COLORS[valence],
 								 label=LABELS[valence],
 								 linewidth=2)

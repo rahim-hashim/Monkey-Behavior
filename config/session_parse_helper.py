@@ -332,7 +332,11 @@ def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 
 		# photodiode data
 		x = np.array(trial_data['AnalogData']['PhotoDiode'])
-		session_dict['photodiode'].append(x[0])
+		try:
+			session_dict['photodiode'].append(x[0])
+		except:
+			print('  Missing photodiode data.')
+			session_dict['photodiote'].append(np.nan) # no photodiode data
 
 		# trial start time (relative to session start)
 		trial_start_time = float(trial_data['AbsoluteTrialStartTime'][()][0][0])

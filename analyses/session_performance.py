@@ -50,7 +50,7 @@ def session_performance(df, behavioral_code_dict, session_obj, latency=True):
   title_str = 'Performance By Fractal'
   ax1.set_title(label=title_str, ha='center', fontsize=16)
 
-  ax1.plot(x, y, linewidth=4, color='black')
+  ax1.plot(x, y, linewidth=4, color='white')
   correct_list_filtered = [r+0.1 if r==1 else r-0.1 for r in correct_list_filtered]
   ax1.scatter(x, correct_list_filtered[num_rolling-1:], s=6, color=scatter_color_list[num_rolling-1:])
   ax1.set_ylim([-0.2,1.2])
@@ -63,17 +63,18 @@ def session_performance(df, behavioral_code_dict, session_obj, latency=True):
   f.tight_layout(pad=2)
 
   rewards = []
+  label_list = []
   for fractal in sorted(session_df_cs_on['valence_1'].unique(), reverse=True):
     session_df_fractal = session_df_cs_on[session_df_cs_on['valence_1'] == fractal]
-    print(fractal, np.sum(session_df_fractal['correct']), len(session_df_fractal))
     reward_val = np.nansum(session_df_fractal['correct'])/len(session_df_fractal)
     rewards.append(reward_val)
+    label_list.append(session_obj.valence_labels[fractal])
 
   x = np.arange(len(rewards))
   unique_color_list = [COLORS[valence] for valence in sorted(session_df_cs_on['valence'].unique(), reverse=True)]
   ax2.bar(np.arange(len(rewards)), rewards, color=unique_color_list, ec='black')
   ax2.set_xticks(x) # values
-  ax2.set_xticklabels(LABELS) # labels
+  ax2.set_xticklabels(label_list) # labels
   ax2.set_xlabel('Fractal')
   ax2.set_ylabel('Fixation Hold (CS On)')
   ax2.set_ylim([0,1])
@@ -104,8 +105,11 @@ def session_performance(df, behavioral_code_dict, session_obj, latency=True):
     block_lines = list(np.nonzero(new_blocks)[0])
     for block in block_lines:
       ax.axvline(x=block, c='lightgrey', linestyle='-')
-    plot_title_str = 'latency.png' 
     plt.title(title_str)
+    plot_title_str = 'session_latency.png' 
+    img_save_path = os.path.join(FIGURE_SAVE_PATH, plot_title_str)
+    print(f'  {plot_title_str} saved.')
+    plt.savefig(img_save_path, dpi=150, bbox_inches='tight', pad_inches = 0.1)
     plt.ylabel('Latency')
     plt.xlabel('Trial Number')
     plt.show()

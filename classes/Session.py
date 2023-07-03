@@ -80,17 +80,21 @@ class Session:
 		valence_mag = reward_mag + airpuff_mag_neg
 		# airpuff
 		if 1 in valence_mag:
-			self.valence_labels[-1] = '(-)(-)'
+			self.valence_labels[-1] = '(--)'
 		if 0.5 in valence_mag:
 			self.valence_labels[-0.5] = '(-)'
 		# neutral
 		if 0 in valence_mag:
 			self.valence_labels[0] = '(0)'
 		# reward
+		if 0.25 in valence_mag:
+			self.valence_labels[0.25] = '(+)'
 		if 0.5 in valence_mag:
-			self.valence_labels[0.5] = '(+)'
+			self.valence_labels[0.5] = '(++)'
+		if 0.75 in valence_mag:
+			self.valence_labels[0.75] = '(+++)'
 		if 1 in valence_mag:
-			self.valence_labels[1] = '(+)(+)'
+			self.valence_labels[1] = '(++++)'
 
 	def generate_colors(self):
 		n = len(self.stim_labels)
