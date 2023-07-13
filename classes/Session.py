@@ -90,11 +90,11 @@ class Session:
 		if 0.25 in valence_mag:
 			self.valence_labels[0.25] = '(+)'
 		if 0.5 in valence_mag:
-			self.valence_labels[0.5] = '(++)'
+			self.valence_labels[0.5] = '(+)'
 		if 0.75 in valence_mag:
-			self.valence_labels[0.75] = '(+++)'
+			self.valence_labels[0.75] = '(++)'
 		if 1 in valence_mag:
-			self.valence_labels[1] = '(++++)'
+			self.valence_labels[1] = '(++)'
 
 	def generate_colors(self):
 		n = len(self.stim_labels)

@@ -44,14 +44,10 @@ def preprocess_data(path_obj, start_date, end_date, monkey_input, experiment_nam
       print(indent(pformat(session_df.columns), '  '))
     
   # Save path for figures
-  try:
-    FIGURE_SAVE_PATH = image_diff(session_df,
+  FIGURE_SAVE_PATH = image_diff(session_df,
                                 session_obj,
                                 path_obj,
                                 combine_dates=combine_dates) # True will combine all dates into analysis
-  except:
-    print('Fractals not found. Setting current directory as save path.')
-    FIGURE_SAVE_PATH = ''
   session_obj.save_paths(path_obj.target_path, 
                           path_obj.tracker_path, 
                           path_obj.video_path,

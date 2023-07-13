@@ -30,6 +30,7 @@ def session_lick(df: pd.DataFrame, session_obj: Session):
   FIGURE_SAVE_PATH = session_obj.figure_path
   LICK_WINDOW_THRESHOLD = session_obj.window_lick
   BLINK_WINDOW_THRESHOLD = session_obj.window_blink
+  VALENCE_COLORS = session_obj.valence_colors
 
   f1, axarr1 = plt.subplots(len(LABELS),1, sharex=True, sharey=True, figsize=(10,10))
   f2, axarr2 = plt.subplots(len(LABELS),1, sharex=True, sharey=True, figsize=(10,10))
@@ -37,9 +38,10 @@ def session_lick(df: pd.DataFrame, session_obj: Session):
   for df_index, fractal in enumerate(sorted(FRACTAL_NAMES)):
 
     df_fractal = df[df['fractal_chosen'] == fractal]
-
     df_fractal['block_change'] = df_fractal['condition'].diff()
     block_change = np.nonzero(df_fractal['block_change'].tolist())[0]
+    # color of scatter should be the valence of the fractal
+    valence_color = [VALENCE_COLORS[trial] for trial in df_fractal['valence']]
 
     # Lick / Reward Plot
     lick = df_fractal['lick_in_window']
@@ -52,23 +54,8 @@ def session_lick(df: pd.DataFrame, session_obj: Session):
     poly_order = 2
     y1 = signal.savgol_filter(lick_raster_window, int(window_size), poly_order)
     axarr1[df_index].plot(np.array(x1), y1, linewidth=3, label = LABELS[df_index], color=COLORS[df_index])
-    axarr1[df_index].scatter(np.array(x1), lick, s=4, color=COLORS[df_index])
-
+    axarr1[df_index].scatter(np.array(x1), lick, s=4, color=valence_color)
     axarr1[df_index].set_title('Fractal {}'.format(LABELS[df_index], fontsize=12))
-    # label valence in blocks
-    block_change_prop = list(map(lambda x: (x+1)/len(df_fractal), block_change))
-    for c_index, change_trial in enumerate(block_change):
-      last_trial_valence = df_fractal['valence'].iloc[change_trial]
-      valence_color = session_obj.valence_colors[last_trial_valence]
-      axarr1[df_index].axhline(1.225, block_change_prop[c_index], block_change_prop[c_index+1], c=valence_color, lw=2.5)
-      if c_index == len(block_change)-2:
-        first_trial_valence = df_fractal['valence'].iloc[block_change[c_index+1]+1]
-        valence_color = session_obj.valence_colors[first_trial_valence]
-        axarr1[df_index].axhline(1.225, block_change_prop[c_index+1], 1, c=valence_color, lw=2.5)
-        break
-    for c_index, change_trial in enumerate(block_change[1:]):
-      axarr1[df_index].axvline(change_trial, c='grey', alpha=0.5)
-
 
     # Blink Plot
     blink = df_fractal['pupil_binary_zero']
@@ -79,20 +66,11 @@ def session_lick(df: pd.DataFrame, session_obj: Session):
     window_size = round_up_to_odd(int(len(np.array(blink_raster_window))/15))
     y2 = signal.savgol_filter(blink_raster_window, int(window_size), poly_order)
     axarr2[df_index].plot(np.array(x2), y2, linewidth=3, label = LABELS[df_index], color=COLORS[df_index])
-    axarr2[df_index].scatter(np.array(x2), blink, s=4, color=COLORS[df_index])
-
+    axarr2[df_index].scatter(np.array(x2), blink, s=4, color=valence_color)
     axarr2[df_index].set_title('Fractal {}'.format(LABELS[df_index], fontsize=8))
-
-    for c_index, change_trial in enumerate(block_change):
-      last_trial_valence = df_fractal['valence'].iloc[change_trial]
-      valence_color = session_obj.valence_colors[last_trial_valence]
-      axarr2[df_index].axhline(1.225, block_change_prop[c_index], block_change_prop[c_index+1], c=valence_color, lw=2.5)
-      if c_index == len(block_change)-2:
-        first_trial_valence = df_fractal['valence'].iloc[block_change[c_index+1]+1]
-        valence_color = session_obj.valence_colors[first_trial_valence]
-        axarr2[df_index].axhline(1.225, block_change_prop[c_index+1], 1, c=valence_color, lw=2.5)
-        break
+    
     for c_index, change_trial in enumerate(block_change[1:]):
+      axarr1[df_index].axvline(change_trial, c='grey', alpha=0.5)
       axarr2[df_index].axvline(change_trial, c='grey', alpha=0.5)
 
   f1.supylabel('Lick Trace Avg\n(Last {}ms of Delay)'.format(LICK_WINDOW_THRESHOLD))

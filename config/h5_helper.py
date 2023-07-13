@@ -241,9 +241,12 @@ def h5_to_df(path_obj, start_date, end_date, monkey_input, save_df):
       # session_obj contains session metadata
       session_obj = Session(session_df_new, monkey_input, experiment_name, behavioral_code_dict)      
       # adds custom fields
-      session_df_new, session_obj = add_fields(session_df_new,
-                                               session_obj, 
-                                               behavioral_code_dict)  
+      try:
+        session_df_new, session_obj = add_fields(session_df_new,
+                                                 session_obj, 
+                                                 behavioral_code_dict)  
+      except:
+        print('Error adding custom fields')
       # pickles each session
       pickler(save_df, path_obj.target_path, session_df_new, monkey_input, experiment_name,
               error_dict, behavioral_code_dict)

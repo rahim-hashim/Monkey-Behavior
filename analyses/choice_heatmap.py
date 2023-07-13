@@ -42,7 +42,7 @@ def plot_choice_valence(df, session_obj, ):
   FIGURE_SAVE_PATH = session_obj.figure_path
   # only get choice trials that are non-zero valence
   session_choice = df[(df['choice_trial'] == 1) & \
-                      (df['fractal_count_in_block'] > 3)]
+                      (df['fractal_count_in_block'] > 5)]
   session_choice = session_choice[(session_choice['valence_1'] != 0)]
   # get unique conditions
   f, axarr = plt.subplots(2,2)

@@ -335,7 +335,8 @@ def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 		try:
 			session_dict['photodiode'].append(x[0])
 		except:
-			print('  Missing photodiode data.')
+			if t_index == 0:
+				print('  Missing photodiode data.')
 			session_dict['photodiote'].append(np.nan) # no photodiode data
 
 		# trial start time (relative to session start)
@@ -343,7 +344,7 @@ def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 		session_dict['trial_start'].append(trial_start_time)
 		
 		# trial start time (absolute)
-		length_trial = len(x[0])
+		length_trial = len(session_dict['eye_x'])
 
 		start_datetime, end_datetime = calculate_end_time(trial_data['TrialDateTime'][()], length_trial)
 

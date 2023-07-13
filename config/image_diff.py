@@ -41,6 +41,9 @@ def image_diff(session_df, session_obj, path_obj, combine_dates):
 
     img_list = sorted([os.path.join(FRACTAL_PATH, img) for img in os.listdir(FRACTAL_PATH) \
                       if (img[-4:] in ['.png', '.jpg']) and ('fix' not in img)])
+    # only include images that were shown
+    fractals_shown = [fractal + '.png' for fractal in session_df['stimuli_name_1'].unique()]
+    img_list = [img for img in img_list if img.split('/')[-1] in fractals_shown]
     image_names = []
     f, axes = plt.subplots(1, len(img_list)+1, sharey = False)
     
@@ -66,7 +69,7 @@ def image_diff(session_df, session_obj, path_obj, combine_dates):
     axes[-1].set_title('Luminance', fontsize=10)
 
     # Make folder for each date
-    DATE_SAVE_PATH = os.path.join(TRACKER_PATH, 'figures', date_formatted)
+    DATE_SAVE_PATH = os.path.join(TRACKER_PATH, 'figures', date_formatted+'_'+session_obj.monkey)
     if os.path.exists(DATE_SAVE_PATH) == False:
       os.mkdir(DATE_SAVE_PATH)
     img_save_path = os.path.join(DATE_SAVE_PATH, '_fractals')

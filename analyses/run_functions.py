@@ -33,10 +33,7 @@ def run_functions(session_df, session_obj, path_obj, behavioral_code_dict, error
 	outcome_plots(df, session_obj)
 
 	from analyses.session_lick import session_lick
-	try:
-		session_lick(df, session_obj)
-	except:
-		print('    Session lick failed, likely not enough trials in each condition...')
+	session_lick(df, session_obj)
 
 	from analyses.trial_raster import trial_raster
 	trial_raster(df, session_obj)
