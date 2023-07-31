@@ -114,7 +114,7 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 	f.write(avg_blink_str)
 
 	# Fractals
-	fractal_img_path = os.path.join('..', 'figures', date_formatted, '_fractals.png') 
+	fractal_img_path = os.path.join(session_obj.figure_path, '_fractals.png') 
 	fractal_form_str = '<img src="{}">\n'.format(fractal_img_path)
 	fractal_str = '\n### Fractals\n{}\n'.format(fractal_form_str)
 	md_list.append(fractal_str)
@@ -130,7 +130,7 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 	md_list.append(epoch_duration_str)
 	f.write(epoch_duration_str)
 
-	outcome_param_img_path = os.path.join('..', 'figures', date_formatted, 'outcome_params.png') 
+	outcome_param_img_path = os.path.join(session_obj.figure_path, 'outcome_params.png') 
 	outcome_param_img_path_str = '<img src="{}" style="zoom:50%;">\n'.format(outcome_param_img_path)
 	md_list.append(outcome_param_img_path_str)
 	f.write(outcome_param_img_path_str)
@@ -140,7 +140,7 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 	md_list.append(epoch_duration_str)
 	f.write(epoch_duration_str)
 
-	epoch_duration_img_path = os.path.join('..', 'figures', date_formatted, 'epoch_hist.png')
+	epoch_duration_img_path = os.path.join(session_obj.figure_path, 'epoch_hist.png')
 	epoch_duration_img_path_str = '<img src="{}" style="zoom:50%;">\n'.format(epoch_duration_img_path)
 	md_list.append(epoch_duration_img_path_str)
 	f.write(epoch_duration_img_path_str)
@@ -150,7 +150,7 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 	md_list.append(performance_header)
 	f.write(performance_header)
 
-	perf_img_path = os.path.join('..', 'figures', date_formatted, 'perf_by_fractal.png') 
+	perf_img_path = os.path.join(session_obj.figure_path, 'perf_by_fractal.png') 
 	perf_form_str = '<img src="{}">\n\n'.format(perf_img_path)
 	md_list.append(perf_form_str)
 	f.write(perf_form_str)
@@ -159,7 +159,7 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 	latency_header = '\n### Latency\n'
 	md_list.append(latency_header)
 	f.write(latency_header)
-	latency_session_img_path = os.path.join('..', 'figures', date_formatted, 'session_latency.png')
+	latency_session_img_path = os.path.join(session_obj.figure_path, 'session_latency.png')
 	latency_session_img_path_str = '<img src="{}">\n'.format(latency_session_img_path)
 	md_list.append(latency_session_img_path_str)
 	f.write(latency_session_img_path_str)
@@ -174,7 +174,7 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 	md_list.append(session_lick_blink_header)
 	f.write(session_lick_blink_header)
 
-	session_lick_blink_img_path = os.path.join('..', 'figures', date_formatted, 'moving_avg_lick_blink.png')
+	session_lick_blink_img_path = os.path.join(session_obj.figure_path, 'moving_avg_lick_blink.png')
 	session_lick_blink_img_path_str = '<img src="{}">\n'.format(session_lick_blink_img_path)
 	md_list.append(session_lick_blink_img_path_str)
 	f.write(session_lick_blink_img_path_str)
@@ -184,7 +184,7 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 	md_list.append(lick_header)
 	f.write(lick_header)
 
-	lick_session_img_path = os.path.join('..', 'figures', date_formatted, 'session_lick_avg.png')
+	lick_session_img_path = os.path.join(session_obj.figure_path, 'session_lick_avg.png')
 	lick_session_img_str = '<img src="{}">\n'.format(lick_session_img_path)
 	md_list.append(lick_session_img_str)
 	f.write(lick_session_img_str)
@@ -194,7 +194,7 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 	md_list.append(blink_header)
 	f.write(blink_header)
 
-	blink_session_img_path = os.path.join('..', 'figures', date_formatted, 'session_blink_avg.png')
+	blink_session_img_path = os.path.join(session_obj.figure_path, 'session_blink_avg.png')
 	blink_session_img_str = '<img src="{}">\n'.format(blink_session_img_path)
 	md_list.append(blink_session_img_str)
 	f.write(blink_session_img_str)
@@ -206,12 +206,12 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 
 	# Raster by Fractal
 	## Lick
-	lick_img_path = os.path.join('..', 'figures', date_formatted, 'fractal_lick_raster.png')
+	lick_img_path = os.path.join(session_obj.figure_path, 'fractal_lick_raster.png')
 	lick_form_str = '<img src="{}" style="zoom:75%;">\n\n'.format(lick_img_path)
 	md_list.append(lick_form_str)
 	f.write(lick_form_str)
 	## Blink
-	blink_img_path = os.path.join('..', 'figures', date_formatted, 'fractal_blink_raster.png')
+	blink_img_path = os.path.join(session_obj.figure_path, 'fractal_blink_raster.png')
 	blink_form_str = '<img src="{}" style="zoom:75%;">\n\n'.format(blink_img_path)
 	md_list.append(blink_form_str)
 	f.write(blink_form_str)
@@ -226,7 +226,7 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 		condition_str = '#### Condition {}\n'.format(condition)
 		md_list.append(condition_str)
 		f.write(condition_str)
-		lick_img_path = os.path.join('..', 'figures', date_formatted, 'raster_by_cond_{}.png'.format(condition)) 
+		lick_img_path = os.path.join(session_obj.figure_path, 'raster_by_cond_{}.png'.format(condition)) 
 		lick_form_str = '<img src="{}">\n\n'.format(lick_img_path)
 		md_list.append(lick_form_str)
 		f.write(lick_form_str)
@@ -240,17 +240,17 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 		md_list.append(condition_str)
 		f.write(condition_str)
 		## Lick
-		t_test_lick_img_path = os.path.join('..', 'figures', date_formatted, 't_test_lick-duration_{}.png'.format(condition))
+		t_test_lick_img_path = os.path.join(session_obj.figure_path, 't_test_lick-duration_{}.png'.format(condition))
 		t_test_lick_img_path_str = '<img src="{}">\n\n'.format(t_test_lick_img_path)
 		md_list.append(t_test_lick_img_path_str)
 		f.write(t_test_lick_img_path_str)
 		## DEM Duration
-		t_test_blink_img_path = os.path.join('..', 'figures', date_formatted, 't_test_DEM-duration_{}.png'.format(condition))
+		t_test_blink_img_path = os.path.join(session_obj.figure_path, 't_test_DEM-duration_{}.png'.format(condition))
 		t_test_blink_img_path_str = '<img src="{}">\n\n'.format(t_test_blink_img_path)
 		md_list.append(t_test_blink_img_path_str)
 		f.write(t_test_blink_img_path_str)
 		## Blink Probability
-		t_test_blink_img_path = os.path.join('..', 'figures', date_formatted, 't_test_blink-duration_{}.png'.format(condition))
+		t_test_blink_img_path = os.path.join(session_obj.figure_path, 't_test_blink-duration_{}.png'.format(condition))
 		t_test_blink_img_path_str = '<img src="{}">\n\n'.format(t_test_blink_img_path)
 		md_list.append(t_test_blink_img_path_str)
 		f.write(t_test_blink_img_path_str)
@@ -259,26 +259,26 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 	collapsed_outcome_header = '\n### Collapse Across Conditions\n'
 	md_list.append(collapsed_outcome_header)
 	f.write(collapsed_outcome_header)
-	outcome_path = os.path.join('..', 'figures', date_formatted, 'grant_lick.png')
+	outcome_path = os.path.join(session_obj.figure_path, 'grant_lick.png')
 	outcome_fig_str = '<img src="{}">\n\n'.format(outcome_path)
 	md_list.append(outcome_fig_str)
 	f.write(outcome_fig_str)
-	outcome_path = os.path.join('..', 'figures', date_formatted, 'grant_dem.png')
+	outcome_path = os.path.join(session_obj.figure_path, 'grant_dem.png')
 	outcome_fig_str = '<img src="{}">\n\n'.format(outcome_path)
 	md_list.append(outcome_fig_str)
 	f.write(outcome_fig_str)
-	outcome_path = os.path.join('..', 'figures', date_formatted, 'grant_blink.png')
+	outcome_path = os.path.join(session_obj.figure_path, 'grant_blink.png')
 	outcome_fig_str = '<img src="{}">\n\n'.format(outcome_path)
 	md_list.append(outcome_fig_str)
 	f.write(outcome_fig_str)
 
 	# Distribution of Lick/Blink Duration
-	dist_path = os.path.join('..', 'figures', date_formatted, 'lick_blink_hist.png')
+	dist_path = os.path.join(session_obj.figure_path, 'lick_blink_hist.png')
 	dist_fig_str = '<img src="{}">\n\n'.format(dist_path)
 	md_list.append(dist_fig_str)
 	f.write(dist_fig_str)
 
-	cdf_dist_path = os.path.join('..', 'figures', date_formatted, 'lick_blink_cdf.png')
+	cdf_dist_path = os.path.join(session_obj.figure_path, 'lick_blink_cdf.png')
 	cdf_fig_str = '<img src="{}">\n\n'.format(cdf_dist_path)
 	md_list.append(cdf_fig_str)
 	f.write(cdf_fig_str)
@@ -287,7 +287,7 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 	lick_blink_header = '### Lick Blink Relationship\n'
 	md_list.append(lick_blink_header)
 	f.write(lick_blink_header)
-	lick_blink_path = os.path.join('..', 'figures', date_formatted, 'lick_vs_blink.png')
+	lick_blink_path = os.path.join(session_obj.figure_path, 'lick_vs_blink.png')
 	lick_blink_fig_str = '<img src="{}">\n\n'.format(lick_blink_path)
 	md_list.append(lick_blink_fig_str)
 	f.write(lick_blink_fig_str)
@@ -300,25 +300,40 @@ def markdown_calc(df, f, behavioral_code_dict, session_obj, verbose):
 	md_list.append(eye_heatmap_header)
 	f.write(eye_heatmap_header)
 	for valence in sorted(df['valence'].unique(), reverse=True):
-		eye_heatmap_path = os.path.join('..', 'figures', date_formatted, 'eye_heatmap_{}.png'.format(valence))
+		eye_heatmap_path = os.path.join(session_obj.figure_path, 'eye_heatmap_{}.png'.format(valence))
 		eye_heatmap_fig_str = '<img src="{}">\n\n'.format(eye_heatmap_path)
 		md_list.append(eye_heatmap_fig_str)
 		f.write(eye_heatmap_fig_str)
 	line_break = '\n***\n'
 	f.write(line_break)
 
-	# Choice Heatmap
-	choice_heatmap_header = '### Choice Heatmap\n'
+	# Choice Plots
+	choice_plots_header = '### Choice Plots\n'
+	md_list.append(choice_plots_header)
+	f.write(choice_plots_header)
+
+	## Choice Heatmap
+	choice_heatmap_header = '#### Choice Heatmap Probability\n'
 	md_list.append(choice_heatmap_header)
 	f.write(choice_heatmap_header)
-	choice_heatmap_path = os.path.join('..', 'figures', date_formatted, 'choice_heatmap.png')
+	choice_heatmap_path = os.path.join(session_obj.figure_path, 'choice_heatmap.png')
 	choice_heatmap_fig_str = '<img src="{}">\n'.format(choice_heatmap_path)
 	md_list.append(choice_heatmap_fig_str)
 	f.write(choice_heatmap_fig_str)
 
+	## Choice Probability
+	choice_avg_header = '#### Choice Valence Probability\n'
+	md_list.append(choice_avg_header)
+	f.write(choice_avg_header)
+	choice_avg_path = os.path.join(session_obj.figure_path, 'session_choice_valence.png')
+	choice_avg_fig_str = '<img src="{}">\n'.format(choice_avg_path)
+	md_list.append(choice_avg_fig_str)
+	f.write(choice_avg_fig_str)
+
 	if verbose:
 		for md_string in md_list:
 			printmd(md_string)
+
 
 	return f
 

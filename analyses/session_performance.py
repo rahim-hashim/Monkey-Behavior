@@ -71,7 +71,7 @@ def session_performance(df, behavioral_code_dict, session_obj, latency=True):
     label_list.append(session_obj.valence_labels[fractal])
 
   x = np.arange(len(rewards))
-  unique_color_list = [COLORS[valence] for valence in sorted(session_df_cs_on['valence'].unique(), reverse=True)]
+  unique_color_list = [COLORS[valence] for valence in sorted(session_df_cs_on['valence_1'].unique(), reverse=True)]
   ax2.bar(np.arange(len(rewards)), rewards, color=unique_color_list, ec='black')
   ax2.set_xticks(x) # values
   ax2.set_xticklabels(label_list) # labels

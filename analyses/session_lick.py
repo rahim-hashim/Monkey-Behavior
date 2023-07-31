@@ -50,9 +50,11 @@ def session_lick(df: pd.DataFrame, session_obj: Session):
     lick_raster_window = df_fractal['lick_count_window'].tolist()
     lick_raster_window = list(map(np.mean, lick_raster_window))
     x1 = np.arange(len(lick_raster_window))
-    window_size = round_up_to_odd(int(len(np.array(lick_raster_window))/15))
-    poly_order = 2
-    y1 = signal.savgol_filter(lick_raster_window, int(window_size), poly_order)
+    # window_size = round_up_to_odd(int(len(np.array(lick_raster_window))/15))
+    # poly_order = 2
+    # y1 = signal.savgol_filter(lick_raster_window, int(window_size), poly_order)
+    # plot the moving average convolved with a gaussian window
+    y1 = np.convolve(lick_raster_window, np.ones((5,))/5, mode='same')
     axarr1[df_index].plot(np.array(x1), y1, linewidth=3, label = LABELS[df_index], color=COLORS[df_index])
     axarr1[df_index].scatter(np.array(x1), lick, s=4, color=valence_color)
     axarr1[df_index].set_title('Fractal {}'.format(LABELS[df_index], fontsize=12))
@@ -63,8 +65,9 @@ def session_lick(df: pd.DataFrame, session_obj: Session):
 
     blink_raster_window = df_fractal['pupil_binary_zero'].tolist()
     x2 = np.arange(len(blink_raster_window))
-    window_size = round_up_to_odd(int(len(np.array(blink_raster_window))/15))
-    y2 = signal.savgol_filter(blink_raster_window, int(window_size), poly_order)
+    # window_size = round_up_to_odd(int(len(np.array(blink_raster_window))/15))
+    # y2 = signal.savgol_filter(blink_raster_window, int(window_size), poly_order)
+    y2 = np.convolve(blink_raster_window, np.ones((5,))/5, mode='same')
     axarr2[df_index].plot(np.array(x2), y2, linewidth=3, label = LABELS[df_index], color=COLORS[df_index])
     axarr2[df_index].scatter(np.array(x2), blink, s=4, color=valence_color)
     axarr2[df_index].set_title('Fractal {}'.format(LABELS[df_index], fontsize=8))

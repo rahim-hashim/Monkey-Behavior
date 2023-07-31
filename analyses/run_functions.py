@@ -41,9 +41,12 @@ def run_functions(session_df, session_obj, path_obj, behavioral_code_dict, error
 	from analyses.raster_by_condition import raster_by_condition
 	from analyses.two_sample_test import t_test_moving_avg
 	for block in sorted(df['condition'].unique()):
-		session_df_condition = df[df['condition'] == block]
-		raster_by_condition(session_df_condition, session_obj)
-		t_test_moving_avg(session_df_condition, session_obj, block)
+		try:
+			session_df_condition = df[df['condition'] == block]
+			raster_by_condition(session_df_condition, session_obj)
+			t_test_moving_avg(session_df_condition, session_obj, block)
+		except:
+			print('Not enough trials for condition: {}'.format(block))
 	
 	from analyses.grant_plots import grant_plots
 	grant_plots(df, session_obj)
@@ -57,8 +60,9 @@ def run_functions(session_df, session_obj, path_obj, behavioral_code_dict, error
 	# from analyses.outcome_over_time import outcome_over_time
 	# outcome_over_time(df, session_obj)
 
-	from analyses.choice_heatmap import plot_choice_valence
-	plot_choice_valence(df, session_obj)
+	from analyses.choice_plots import plot_heatmap_choice_valence, plot_avg_choice_valence
+	plot_heatmap_choice_valence(df, session_obj)
+	plot_avg_choice_valence(df, session_obj)
 
 	from analyses.log_reg  import log_reg_model
 	log_reg_model(df)

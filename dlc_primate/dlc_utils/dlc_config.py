@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
-def select_session(session_root, date, monkey, correct_only=True):
+def select_session(session_root, video_root, date, monkey, correct_only=True):
 	print(f'Selecting session: {date}_{monkey}')
 	session_dir = os.listdir(session_root)
 	"""Select session from list of sessions"""
@@ -16,17 +16,17 @@ def select_session(session_root, date, monkey, correct_only=True):
 		# select only correct trials
 		if correct_only:
 			session_df = session_df[session_df['correct'] == 1]
-	return session_df
+	video_path = os.path.join(video_root, date + '_' + monkey)
+	return session_df, video_path
 
-def get_trial_video_list(session_df, video_root, date, monkey):
-	VIDEO_DIR = os.path.join(video_root, date + '_' + monkey)
+def get_trial_video_list(session_df, video_dir):
 	"""Get list of trial videos"""
 	trial_videos = session_df['cam1_trial_name'].tolist()
 	video_list = []
 	print('Checking for video files...')
-	print(f'  Video directory: {VIDEO_DIR}')
+	print(f'  Video directory: {video_dir}')
 	for video in tqdm(trial_videos):
-		video_path = os.path.join(VIDEO_DIR, video+'.mp4')
+		video_path = os.path.join(video_dir, video+'.mp4')
 		# Check if video exists
 		if os.path.exists(video_path):
 			# Check if video is locked

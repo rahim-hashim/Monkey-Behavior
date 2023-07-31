@@ -18,8 +18,9 @@ class Session:
 		self.df = df
 		self.monkey = monkey_input
 		self.task = task
-		self.window_lick = 750
-		self.window_blink = 1500
+		self.date = df['date'].iloc[0]
+		self.window_lick = 1000
+		self.window_blink = 1300
 		self.colors = []
 		self.stim_labels = []
 		self.valence_colors = {1.0: '#28398D', 0.75: '#308ED6', # dark blue, blue,
@@ -120,7 +121,8 @@ class Session:
 	def save_paths(self, TASK_PATH, TRACKER_PATH, VIDEO_PATH, FIGURE_PATH):
 		self.task_path = TASK_PATH
 		self.tracker_path = TRACKER_PATH
-		self.video_path = VIDEO_PATH
+		session_video_path = os.path.join(VIDEO_PATH, self.date + '_' + self.monkey)
+		self.video_path = session_video_path
 		self.figure_path = FIGURE_PATH
 
 	def find_offscreen_values(self):

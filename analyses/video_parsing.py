@@ -190,7 +190,7 @@ def video_parsing(df, session_obj, trial_specified=None):
 	monkey_name = df['subject'].iloc[0]
 	# Open .mp4 file
 	for v_index, video_file in enumerate(list_files):
-		video_path_date = os.path.join(session_obj.video_path, date + '_' + monkey_name)
+		video_path_date = session_obj.video_path
 		file_name = video_file+'.mp4'
 		file_path = os.path.join(video_path_date, file_name)
 		if file_name in os.listdir(video_path_date):

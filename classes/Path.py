@@ -8,8 +8,16 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 
 def extract_number(filename):
-  number = re.findall('\d+', filename)  # find all sequences of digits in the filename string
-  return number[0]  # return the first match
+	number = re.findall('\d+', filename)  # find all sequences of digits in the filename string
+	return number[0]  # return the first match
+
+def extract_monkeyname(filename):
+	# name can be Aragorn or Bear
+	name = re.findall('Aragorn|Bear', filename)
+	if name:
+		return name[0]
+	else:
+		return
 
 class Path:
 	def __init__(self, ROOT, EXPERIMENT, TASK):
@@ -45,15 +53,25 @@ class Path:
 
 	def check_paths(self):
 		if os.path.exists(self.raw_data_path):
-				print('Raw Data Path Exists: {}'.format(self.raw_data_path))
-				print('  Number of Files  : {}'.format(len(os.listdir(self.raw_data_path))))
-				# Get all .h5 files
-				list_h5_files = [file for file in os.listdir(self.raw_data_path) if file.endswith('.h5')]
+			print('Raw Data Path Exists: {}'.format(self.raw_data_path))
+			print('  Number of Total Files  : {}'.format(len(os.listdir(self.raw_data_path))))
+			# Get all .h5 files
+			list_h5_files = [file for file in os.listdir(self.raw_data_path) if file.endswith('.h5')]
+			# Get monkey names from file names
+			monkey_names = list(map(extract_monkeyname, list_h5_files))  # apply the extract_monkeyname function to each filename in the list
+			# Get unique monkey names
+			unique_monkey_names = set(monkey_names)
+			# Remove None from unique_monkey_names
+			unique_monkey_names = [monkey for monkey in unique_monkey_names if monkey is not None]
+			for monkey in unique_monkey_names:
+				print('  Monkey: {}'.format(monkey))
+				print('    Number of {} Files : {}'.format(monkey, monkey_names.count(monkey)))
 				# Get dates from file names
-				dates = list(map(extract_number, list_h5_files))  # apply the extract_number function to each filename in the list
+				h5_files_monkey = [file for file in list_h5_files if monkey in file]
+				dates = list(map(extract_number, h5_files_monkey))  # apply the extract_number function to each filename in the list
 				if len(dates) > 0:
-					print('  Earliest Date    : {}'.format(min(dates)))
-					print('  Most Recent Date : {}'.format(max(dates)))
+					print('    Earliest Date    : {}'.format(min(dates)))
+					print('    Most Recent Date : {}'.format(max(dates)))
 				else:
 					sys.exit('No .h5 files found in {}'.format(self.raw_data_path))
 		else:
