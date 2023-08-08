@@ -134,8 +134,11 @@ def plot_avg_choice_valence(session_df_correct, session_obj):
   block_change = np.where(np.diff(session_df_choice['condition']) != 0)[0]
   print(block_change)
   # plot vertical lines for block change
-  for block in block_change:
-    ax.axvline(block-0.55, color='white', linestyle='--', linewidth=1, label='Block Change')    
+  for b_index, block in enumerate(block_change):
+    if b_index == 0:
+      ax.axvline(block-0.55, color='white', linestyle='--', linewidth=1, label='Block Change')
+    else:
+      ax.axvline(block-0.55, color='white', linestyle='--', linewidth=1)
   ax.set_ylim([-0.25, 1.25])
   # add second y axis
   ax2 = ax.twinx()

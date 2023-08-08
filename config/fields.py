@@ -1,5 +1,5 @@
 # list of fields
-# session_num	subject	trial_num	block	condition	correct	error	error_type	behavioral_code_markers	behavioral_code_times	stimuli_name_1	x_1_pos	y_1_pos	stimuli_name_2	x_2_pos	y_2_pos	reward_1	reward_prob_1	reward_mag_1	reward_drops_1	reward_length_1	reward_2	reward_prob_2	reward_mag_2	airpuff_1	airpuff_prob_1	airpuff_mag_1	airpuff_2	airpuff_prob_2	airpuff_mag_2	eye_x	eye_y	eye_pupil	lick	photodiode	trial_start	trial_datetime_start	trial_datetime_end	reinforcement_trial	choice_trial	stim_chosen	stim_2_chosen	fractal_chosen	reward	reward_mag	airpuff	airpuff_mag	cam1_trial_name	cam1_trial_time	cam1_video	Start Trial	Fixation On	Fixation Success	CS On	Fixation Off	Trace Start	Trace End	Outcome Start	Reward Trigger	Airpuff Trigger	Outcome	Outcome End	Manual Reward	End Trial	valence	valence_1	valence_2	lick_raster	DEM_raster	trial_bins	trial_in_block	fractal_count_in_block	lick_count_window	blink_count_window	pupil_data_window	pupil_raster	pupil_raster_window	pupil_raster_window_avg	pupil_binary_zero	blink_onset	blink_offset	blink_raster	blink_raster_window	blink_duration_window	pupil_pre_CS	lick_in_window	blink_in_window	lick_duration	blink_duration_sig	blink_duration_offscreen	eye_distance
+# session_num	subject	trial_num	block	condition	correct	error	error_type	behavioral_code_markers	behavioral_code_times	stimuli_name_1	x_1_pos	y_1_pos	stimuli_name_2	x_2_pos	y_2_pos	reward_1	reward_prob_1	reward_mag_1	reward_drops_1	reward_length_1	reward_2	reward_prob_2	reward_mag_2	airpuff_1	airpuff_prob_1	airpuff_mag_1	airpuff_2	airpuff_prob_2	airpuff_mag_2	eye_x	eye_y	eye_pupil	lick	photodiode	trial_start	trial_datetime_start	trial_datetime_end	reinforcement_trial	choice_trial	stim_chosen	stim_2_chosen	fractal_chosen	reward	reward_mag	airpuff	airpuff_mag	cam1_trial_name	cam1_trial_time	cam1_video	Start Trial	Fixation On	Fixation Success	CS On	Fixation Off	Trace Start	Trace End	Outcome Start	Reward Trigger	Airpuff Trigger	Outcome	Outcome End	Manual Reward	End Trial	valence	valence_1	valence_2	valence_not_chosen lick_raster	DEM_raster	trial_bins	trial_in_block	fractal_count_in_block	lick_count_window	blink_count_window	pupil_data_window	pupil_raster	pupil_raster_window	pupil_raster_window_avg	pupil_binary_zero	blink_onset	blink_offset	blink_raster	blink_raster_window	blink_duration_window	pupil_pre_CS	lick_in_window	blink_in_window	lick_duration	blink_duration_sig	blink_duration_offscreen	eye_distance
 field_dict = {
   'date': '[YYMMDD] the date of the experiment',
   'session_num': '[0...n] the session number for each day',
@@ -65,9 +65,10 @@ field_dict = {
   'Outcome End': '[n] the outcome end time',
   'Manual Reward': '[n] the manual reward time',
   'End Trial': '[n] the end of the trial time',
-  'valence': '[-1...1] the valence of the fractal (>0 = positive, <0 = negative)',
+  'valence': '[-1...1] the valence of the fractal received (>0 = positive, <0 = negative)',
   'valence_1': '[-1...1] the valence of stimuli_name_1',
   'valence_2': '[-1...1] the valence of stimuli_name_2',
+  'valence_not_chosen': '[-1...1] the valence of the stimuli not chosen',
   'lick_raster': '[n] the lick raster binarizing the lick data (>4mV = lick)',
   'DEM_raster': '[n] the defensive eye movement raster binarizing the eye data (x > abs(10) or y > abs(10))',
   'trial_bins': '[n] the trial bins for the lick raster and DEM raster',

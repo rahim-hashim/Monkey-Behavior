@@ -85,9 +85,9 @@ class Path:
 			if len(task_folder) > 1:
 				print('Multiple task folders found for task: {}'.format(TASK))
 				# ask user to select the task they want
-				task_selected = input('Please select the task you want (i.e. 1, 2, 3...): ')
 				for t_index, task in enumerate(task_folder):
 					print('  {}: {}'.format(t_index+1, task))
+				task_selected = input('Please select the task you want (i.e. 1, 2, 3...): ')
 				task_name = task_folder[int(task_selected)-1]
 			else:
 				task_name = task_folder[0]

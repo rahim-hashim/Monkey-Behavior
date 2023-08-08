@@ -48,8 +48,8 @@ def run_functions(session_df, session_obj, path_obj, behavioral_code_dict, error
 		except:
 			print('Not enough trials for condition: {}'.format(block))
 	
-	from analyses.grant_plots import grant_plots
-	grant_plots(df, session_obj)
+	# from analyses.grant_plots import grant_plots
+	# grant_plots(df, session_obj)
 
 	# from analyses.measure_hist import measure_hist
 	# measure_hist(df, session_obj)
@@ -64,8 +64,8 @@ def run_functions(session_df, session_obj, path_obj, behavioral_code_dict, error
 	plot_heatmap_choice_valence(df, session_obj)
 	plot_avg_choice_valence(df, session_obj)
 
-	from analyses.log_reg  import log_reg_model
-	log_reg_model(df)
+	# from analyses.log_reg  import log_reg_model
+	# log_reg_model(df)
 
 	from utilities.markdown_print import markdown_summary
 	markdown_summary(df, behavioral_code_dict, session_obj)

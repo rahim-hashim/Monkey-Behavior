@@ -239,12 +239,12 @@ def h5_to_df(path_obj, start_date, end_date, monkey_input, save_df):
        # convert dictionary to pd.DataFrame
       session_df_new = pd.DataFrame.from_dict(session_dict)
       # session_obj contains session metadata
-      session_obj = Session(session_df_new, monkey_input, experiment_name, behavioral_code_dict)      
+      session_obj = Session(session_df_new, monkey_input, experiment_name, behavioral_code_dict)          
       # adds custom fields
       try:
         session_df_new, session_obj = add_fields(session_df_new,
                                                  session_obj, 
-                                                 behavioral_code_dict)  
+                                                 behavioral_code_dict)
       except:
         print('Error adding custom fields')
       # pickles each session
@@ -257,7 +257,5 @@ def h5_to_df(path_obj, start_date, end_date, monkey_input, save_df):
 
   else:
       raise RuntimeError('No .h5 files found for selected dates')
-
-  print(indent(pformat(session_df.columns), '  '))
 
   return ml_config, trial_record, session_df, session_obj, error_dict, behavioral_code_dict

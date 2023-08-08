@@ -9,28 +9,35 @@ echo "Target path is:"
 echo "  $target_path"
 
 # set monkey variable to Aragorn
-monkey=""
+monkey="Aragorn"
 # set date variable to todays date (i.e. YYMMDD)
-# date=$(date +%y%m%d)
-date="230727"
+date_str=$(date +%y%m%d)
+# date_str='230807'
 if [ -z "$monkey" ]; then
-  echo "Searching for all monkeys for $date"
+  echo "Searching for all monkeys for $date_str"
 else
-  echo "Searching for $monkey for $date"
+  echo "Searching for $monkey for $date_str"
 fi
-# find file that has the monkey name and todays date using loop and add to list
+# find file that has the monkey name and todays date using loop and add to list and ends with .h5
 file_array=()
 for file in *; do
   if [ -z "$monkey" ]; then
-    if [[ $file == *"$date"* ]]; then
+    if [[ $file == *"$date_str"* ]] && [[ $file == *".h5"* ]]; then
         file_array+=($file)
     fi
   else
-    if [[ $file == *"$monkey"* ]] && [[ $file == *"$date"* ]]; then
+    if [[ $file == *"$monkey"* ]] && [[ $file == *"$date_str"* ]] && [[ $file == *".h5"* ]]; then
         file_array+=($file)
     fi
   fi
 done
+# if file_array is larger than 10, print warning and exit
+if [ ${#file_array[@]} -gt 10 ]; then
+  echo "WARNING: More than 10 files found"
+  echo "  ${#file_array[@]} files found"
+  echo "  Exiting"
+  exit
+fi
 if [ ${#file_array[@]} -eq 0 ]; then
   echo "  No files found"
 else
@@ -45,10 +52,10 @@ fi
 echo "Total number of files moved: ${#file_array[@]}"
 
 # copy fractal date folder to all fractals folder
-# todays date in YYYYMMDD format
-fractal_date=$(date +%Y%m%d)
+# date_str variable in YYYYMMDD format
+fractal_date=$(date -j -f "%y%m%d" "$date_str" +"%Y%m%d")
 fractal_folder="_fractals/$fractal_date"
 echo "Fractal folder is: $fractal_date"
 # copy fractal folder to all fractals folder
-cp -r $fractal_folder "_fractals_all"
+cp -r $fractal_folder "../_fractals_all"
 echo "Copied fractal folder to all fractals folder"

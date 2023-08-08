@@ -41,6 +41,7 @@ def stimulus_parser(stimulus, stim_num, session_dict):
 def camera_parser(session, session_dict, cam1_list, cam2_list, date_input, monkey_input):
 	print('Parsing camera data...')
 	if (not cam1_list) and (not cam2_list):
+		print('  No camera data attached to ML file.')
 		session_dict['cam1_trial_name'] = np.nan
 		session_dict['cam2_trial_name'] = np.nan
 		session_dict['cam1_trial_time'] = np.nan
@@ -67,7 +68,7 @@ def camera_parser(session, session_dict, cam1_list, cam2_list, date_input, monke
 					session_dict[cam_data_column].append(cam_trial_file)
 				except: # video data removed from file using mlexportwebcam
 					session_dict[cam_data_column].append(np.nan)
-	print('  Complete.')
+			print('  Complete.')
 	return session_dict
 
 def session_parser(session, trial_list, trial_record, date_input, monkey_input):
@@ -326,6 +327,15 @@ def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 		# lick data
 		x = np.array(trial_data['AnalogData']['General']['Gen1'])
 		session_dict['lick'].append(x[0])
+
+		# camera TTL (frame + save) data
+		try:
+			x = np.array(trial_data['AnalogData']['General']['Gen2'])
+			session_dict['cam_frame'].append(x[0])
+			y = np.array(trial_data['AnalogData']['General']['Gen3'])
+			session_dict['cam_save'].append(y[0])
+		except:
+			pass
 
 		# reward data
 		# x = np.array(trial_data['VariableChanges'])
