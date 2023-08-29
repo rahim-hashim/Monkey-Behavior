@@ -104,19 +104,16 @@ def behavior_summary(df, session_obj):
 	return lick_mean, DEM_mean, blink_mean
 
 def outcome_params(session_obj):
+	"""generate list of reward and airpuff parameters for excel sheet"""
 	reward_list = []
 	airpuff_list = []
-	reward_drops = [reward for reward in session_obj.reward_outcome_params['reward_drops'] if reward != 0]
-	# get non-zero values for reward_mag (excluding neutral)
-	for reward_mag in range(len(reward_drops)):
-		reward_list.append(session_obj.reward_outcome_params['reward_drops'][reward_mag])
-		reward_list.append(session_obj.reward_outcome_params['reward_freq'][reward_mag])
-		reward_list.append(session_obj.reward_outcome_params['reward_length'][reward_mag])
-	# get non-zero values for reward_mag (excluding neutral)
-	airpuff_pulses = [airpuff for airpuff in session_obj.airpuff_outcome_params['airpuff_pulses'] if airpuff != 0]
-	for airpuff_mag in range(len(airpuff_pulses)):
-		airpuff_list.append(session_obj.airpuff_outcome_params['airpuff_pulses'][airpuff_mag])
-		airpuff_list.append(session_obj.airpuff_outcome_params['airpuff_freq'][airpuff_mag])
+	# only large vs. small reward/airpuff
+	for magnitude in [1.0,0.5]:
+		reward_list.append(session_obj.reward_outcome_params['reward_drops'][magnitude])
+		reward_list.append(session_obj.reward_outcome_params['reward_freq'][magnitude])
+		reward_list.append(session_obj.reward_outcome_params['reward_length'][magnitude])
+		airpuff_list.append(session_obj.airpuff_outcome_params['airpuff_mag'][magnitude])
+		airpuff_list.append(session_obj.airpuff_outcome_params['airpuff_freq'][magnitude])
 	return reward_list, airpuff_list
 
 def write_to_excel(df, session_obj, path_obj, verbose=False):

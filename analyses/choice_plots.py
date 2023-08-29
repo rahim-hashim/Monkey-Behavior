@@ -7,7 +7,7 @@ def update_choice_matrix(choice_matrix, valences, df):
   for v_1_index, valence_1 in enumerate(valences):
     for v_2_index, valence_2 in enumerate(valences):
       if v_1_index == v_2_index:
-        choice_matrix[v_1_index][v_2_index] = 0.5
+        choice_matrix[v_1_index][v_2_index] = np.nan
         continue
       df_valence_1 = df[(df['valence_1'] == valence_1) &
                             (df['valence_2'] == valence_2) & 
@@ -27,7 +27,7 @@ def generate_ideal_matrix(choice_matrix, valences):
   for v_1_index, valence_1 in enumerate(valences):
     for v_2_index, valence_2 in enumerate(valences):
       if v_1_index == v_2_index:
-        choice_matrix[v_1_index][v_2_index] = 0.5
+        choice_matrix[v_1_index][v_2_index] = np.nan
         continue
       else:
         if valence_1 > valence_2:
@@ -46,8 +46,8 @@ def plot_heatmap_choice_valence(df, session_obj, ):
   session_choice = session_choice[(session_choice['valence_1'] != 0)]
   # get unique conditions
   f, axarr = plt.subplots(2,2)
-  cmap = plt.cm.RdBu
-  cmap.set_bad(color='black')  
+  cmap = plt.cm.RdYlGn
+  cmap.set_bad(color='white')  
   conditions = list(sorted(df['condition'].unique()))
   # get unique valences
   valences = sorted(df['valence_1'].unique(), reverse=True)
@@ -132,7 +132,6 @@ def plot_avg_choice_valence(session_df_correct, session_obj):
   scatter_colors_2 = [color_dict[valence] for valence in session_df_choice['not_chosen_fractal']]
   ax.scatter(x, [-0.1]*len(x), s=2, c=scatter_colors_2)
   block_change = np.where(np.diff(session_df_choice['condition']) != 0)[0]
-  print(block_change)
   # plot vertical lines for block change
   for b_index, block in enumerate(block_change):
     if b_index == 0:

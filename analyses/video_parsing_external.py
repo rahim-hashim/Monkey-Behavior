@@ -29,6 +29,7 @@ def get_frames(file_path):
 	frame_size = (frame_width, frame_height)
 	# Get duration
 	duration = frame_count / frame_rate
+	print('Video File: ', file_path)
 	print('  Frame Count  : ', frame_count)
 	print('  Frame Rate   : ', frame_rate)
 	print(f'  Frame Size   :  {frame_width} x {frame_height}')
@@ -131,9 +132,9 @@ def find_epoch_frames(epoch_start_selected, trial_frame_times, epoch_start, epoc
 		frame_end_index -= 1
 		end_frame = trial_frame_times[frame_end_index]
 	print(f'  {epoch_start_selected}  Start :  {epoch_start_time}')
-	print(f'  Start Frame  :  {round(start_frame)}')
+	print(f'  Start Frame     :  {round(start_frame)}')
 	print(f'  {epoch_start_selected} End    :  {epoch_end_time}')
-	print(f'  End Frame    :  {round(end_frame)}')
+	print(f'  End Frame       :  {round(end_frame)}')
 	return epoch_start_time, frame_start_index, frame_end_index, start_frame, end_frame
 
 def eye_parsing(df, session_obj):
@@ -161,7 +162,8 @@ def video_parsing_external(df, session_obj, trial_specified=None):
 	# Filter dataframe by trial number
 	if trial_specified:
 		df = df[df['trial_num'] == trial_specified]
-	list_files = df['e3v8360'].tolist()
+	list_face1_files = df['e3v8360'].tolist()
+	list_face2_files = df['e3v83d6'].tolist()
 	list_frame_times = df['cam_frames'].tolist()
 	# Assign epoch
 	epoch_start_selected = 'Fixation'
@@ -189,11 +191,11 @@ def video_parsing_external(df, session_obj, trial_specified=None):
 	# Monkey name
 	monkey_name = df['subject'].iloc[0]
 	# Open .mp4 file
-	for v_index, file_name in enumerate(list_files):
-		print('Video File: ', file_name)
+	for v_index, file_name in enumerate(list_face1_files):
 		trial_frame_times = list_frame_times[v_index]
 		# Get all frames from the video file
-		frames, frame_size = get_frames(file_name)
+		frames_face1, frame_size_face1 = get_frames(file_name)
+		frames_face2, frame_size_face2 = get_frames(list_face2_files[v_index])
 		# Find the frames that correspond to the trace start and end times
 		epoch_start_time, frame_start_index, frame_end_index, start_frame, end_frame = \
 			find_epoch_frames(epoch_start_selected, trial_frame_times, epoch_start, epoch_end, v_index)
@@ -201,8 +203,12 @@ def video_parsing_external(df, session_obj, trial_specified=None):
 		eye_x_list = []
 		eye_y_list = []
 		color_list = []
-		for f_index, frame in enumerate(frames[frame_start_index:frame_end_index]):
-			f, axarr = plt.subplots(1, 2, figsize=(12, 5), gridspec_kw={'width_ratios': [1, 0.75]})
+		# list of lick times
+		lick_list = []
+		for f_index, frame in enumerate(frames_face1[frame_start_index:frame_end_index]):
+			# make height of column 2 plots smaller
+			f, axarr = plt.subplots(2, 2, figsize=(10, 10), gridspec_kw={'height_ratios': [1, 0.75]})
+			frame_2 = frames_face2[f_index+frame_start_index]
 			frame_time_in_epoch = round(trial_frame_times[f_index+frame_start_index] - epoch_start_time)
 			lick_binary = lick_raster_epoch[frame_time_in_epoch]
 			pupil_binary = round(pupil_raster_epoch[frame_time_in_epoch])
@@ -219,13 +225,15 @@ def video_parsing_external(df, session_obj, trial_specified=None):
 					blink_color = (255, 0, 0)
 			else:
 					blink_color = (255, 255, 255)
-			if frame_size == (320, 240):
+			if frame_size_face1 == (320, 240):
 					frame = cv2.resize(frame, (640, 480))
 			frame = frame_eye_capture(frame, v_index)
 			eye_x = eye_x_epoch[frame_time_in_epoch]
 			eye_y = eye_y_epoch[frame_time_in_epoch]
 			eye_x_list.append(eye_x)
 			eye_y_list.append(eye_y)
+			# add lick to list
+			lick_list.append(lick_binary)
 			# Add annotations to frame
 			cv2.putText(frame, 'Time: '+str(frame_time_in_epoch), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 			cv2.putText(frame, f'Eye X/Y: ({round(eye_x, 1)},{round(eye_y, 1)})', 
@@ -236,11 +244,16 @@ def video_parsing_external(df, session_obj, trial_specified=None):
 						(540, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, blink_color, 2)
 			cv2.putText(frame, 'Pupil: '+str(pupil_binary), 
 						(540, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, pupil_color, 2)
-			# Plot frame
-			axarr[0].imshow(frame)
+			# Plot frame(s)
+			axarr[0][0].imshow(frame)
+			axarr[1][0].imshow(frame_2)
 			frame_time = trial_frame_times[f_index+frame_start_index]
 			# Plot eye position scatter
-			axarr[1] = eye_scatter(df, v_index, frame_time, axarr[1], eye_x_list, eye_y_list, color_list, session_obj)
+			axarr[1][0] = eye_scatter(df, v_index, frame_time, axarr[0][1], eye_x_list, eye_y_list, color_list, session_obj)
+			axarr[1][1].plot(lick_list, color='red')
+			plt.tight_layout()
 			plt.show()
+			if f_index == 100:
+				break
 		if v_index > 5:
 				break

@@ -20,6 +20,8 @@ class Session:
 		self.task = task
 		self.date = df['date'].iloc[0]
 		self.window_lick = 1000
+		# determine lick threshold
+		self.estimate_lick_threshold()
 		self.window_blink = 1300
 		self.colors = []
 		self.stim_labels = []
@@ -36,8 +38,8 @@ class Session:
 		self.prop_trials_initiated = 0	# fraction of initiated trials per session
 		self.CS_on_trials = 0						# number of "CS On" trials per session
 		self.prop_correct_CS_on = 0			# fraction of correct initiated trials per session
-		self.reward_outcome_params = defaultdict(list)
-		self.airpuff_outcome_params = defaultdict(list)
+		self.reward_outcome_params = defaultdict(lambda: defaultdict(float))
+		self.airpuff_outcome_params = defaultdict(lambda: defaultdict(float))
 		self.lick_duration = defaultdict(float)
 		self.blink_duration = defaultdict(float)
 		self.blink_signal = defaultdict(float)
@@ -52,9 +54,16 @@ class Session:
 		self.generate_colors()
 		self.calculate_datetime()
 		self.find_offscreen_values()
-		# self.find_outcome_parameters()
+		self.find_outcome_parameters()
 		self.behavior_summary(behavioral_code_dict)
 	
+	def estimate_lick_threshold(self):
+		"""Determine the voltage threshold for a lick"""
+		first_10_lick = self.df['lick'].iloc[:10].tolist()
+		first_10_lick = max([item for sublist in first_10_lick for item in sublist])
+		self.lick_threshold = np.round(first_10_lick * 0.75, 2)
+		print('Lick threshold: {} mV'.format(self.lick_threshold))
+
 	def parse_stim_labels(self):
 		unique_fractals = self.df['stimuli_name_1'].unique()
 		# remove error label
@@ -155,39 +164,49 @@ class Session:
 
 	def find_outcome_parameters(self):
 		df = self.df.copy()
-		df = df[df['correct'] == 1]
-		valence = sorted(df['valence_1'].unique(), reverse=True)
-		reward_mag_list = []
-		reward_freq_list = []
-		reward_length_list = []		
-		airpuff_mag_list = []
-		airpuff_freq_list = []		
-		for val in valence:
-			# skip neutral trials
-			if val == 0:
-				continue
-			if 'reward_mag_1' in df.columns:
-				reward_drops_col = 'reward_drops_1'
-				reward_freq_col = 'reward_prob_1'
-				reward_length_col = 'reward_length_1'
-				airpuff_mag_col = 'airpuff_mag_1'
-				airpuff_freq_col = 'airpuff_prob_1'
-			else:
-				reward_drops_col = 'reward_drops'
-				reward_freq_col = 'reward_prob'
-				reward_length_col = 'reward_length'
-				airpuff_mag_col = 'airpuff_mag'
-				airpuff_freq_col = 'airpuff_prob'
-			reward_mag_list.append(df[df['valence_1'] == val].iloc[0][reward_drops_col])
-			reward_freq_list.append(df[df['valence_1'] == val].iloc[0][reward_freq_col])
-			reward_length_list.append(df[df['valence_1'] == val].iloc[0][reward_length_col])
-			airpuff_mag_list.append(df[df['valence_1'] == val].iloc[0][airpuff_mag_col])
-			airpuff_freq_list.append(df[df['valence_1'] == val].iloc[0][airpuff_freq_col])
-		self.reward_outcome_params['reward_drops'] = sorted(reward_mag_list, reverse=True)
-		self.reward_outcome_params['reward_freq'] = sorted(reward_freq_list, reverse=True)
-		self.reward_outcome_params['reward_length'] = sorted(reward_length_list, reverse=True)
-		self.airpuff_outcome_params['airpuff_pulses'] = sorted(airpuff_mag_list, reverse=True)
-		self.airpuff_outcome_params['airpuff_freq'] = sorted(airpuff_freq_list, reverse=True)
+		df = df.loc[(df['correct'] == 1) & (df['reinforcement_trial'] == 1)]
+		if 'reward_mag_1' in df.columns:
+			reward_mag_col = 'reward_mag_1'
+			reward_drops_col = 'reward_drops_1'
+			reward_freq_col = 'reward_prob_1'
+			reward_length_col = 'reward_length_1'
+			airpuff_mag_col = 'airpuff_mag_1'
+			airpuff_freq_col = 'airpuff_prob_1'
+			# num_pulses_col = 'num_pulses'
+		else:
+			reward_mag_col = 'reward_mag'
+			reward_drops_col = 'reward_drops'
+			reward_freq_col = 'reward_prob'
+			reward_length_col = 'reward_length'
+			airpuff_mag_col = 'airpuff_mag'
+			airpuff_freq_col = 'airpuff_prob'
+			# num_pulses_col = 'num_pulses'
+		reward_mags = sorted(df[reward_mag_col].unique(), reverse=True)
+		airpuff_mags = sorted(df[airpuff_mag_col].unique(), reverse=True)
+		for mag in reward_mags:
+			df_mag = df[df[reward_mag_col] == mag]
+			reward_drops = df_mag[reward_drops_col].iloc[0]
+			reward_freq = df_mag[reward_freq_col].iloc[0]
+			reward_length = df_mag[reward_length_col].iloc[0]
+			print('  Reward Mag: {}'.format(mag))
+			print('    Reward Drops: {}'.format(reward_drops))
+			print('    Reward Frequency: {}'.format(reward_freq))
+			print('    Reward Length: {}'.format(reward_length))
+			self.reward_outcome_params['reward_drops'][mag] = reward_drops
+			self.reward_outcome_params['reward_freq'][mag] = reward_freq
+			self.reward_outcome_params['reward_length'][mag] = reward_length
+		for mag in airpuff_mags:
+			df_mag = df[df[airpuff_mag_col] == mag]
+			airpuff_mag = df_mag[airpuff_mag_col].iloc[0]
+			# airpuff_pulses = df_mag[num_pulses_col].iloc[0]
+			airpuff_freq = df_mag[airpuff_freq_col].iloc[0]
+			print('  Airpuff Mag: {}'.format(mag))
+			print('    Airpuff Magnitude: {}'.format(airpuff_mag))
+			# print('    Airpuff Pulses: {}'.format(airpuff_pulses))
+			print('    Airpuff Frequency: {}'.format(airpuff_freq))
+			self.airpuff_outcome_params['airpuff_mag'][mag] = airpuff_mag
+			# self.airpuff_outcome_params['airpuff_pulses'][mag] = airpuff_pulses
+			self.airpuff_outcome_params['airpuff_freq'][mag] = airpuff_freq		
 
 	def behavior_summary(self, behavioral_code_dict):
 		df = self.df

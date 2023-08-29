@@ -11,8 +11,8 @@ echo "  $target_path"
 # set monkey variable to Aragorn
 monkey="Aragorn"
 # set date variable to todays date (i.e. YYMMDD)
-date_str=$(date +%y%m%d)
-# date_str='230807'
+# date_str=$(date +%y%m%d)
+date_str='230828'
 if [ -z "$monkey" ]; then
   echo "Searching for all monkeys for $date_str"
 else
@@ -42,11 +42,11 @@ if [ ${#file_array[@]} -eq 0 ]; then
   echo "  No files found"
 else
   for file_name in "${file_array[@]}"; do
-    echo "  Moving: $file_name"
+    echo "  Moving : $file_name"
     # move the data file to the target path
     mv $file_name $target_path
   done
-  echo "  Moved $file_name"
+  echo "  Moved  : $file_name"
 fi
 # print total number of files moved
 echo "Total number of files moved: ${#file_array[@]}"

@@ -102,7 +102,7 @@ def trace_to_raster(trace_data, threshold):
 			raster_data.append(0)
 	return raster_data
 
-def lick_window(trial):
+def lick_window(trial, lick_threshold):
 	"""
 	Generates an array for each trial of rasterized lick data
 			
@@ -113,9 +113,8 @@ def lick_window(trial):
 			lick_raster: rasterized lick data for each ms window
 	"""
 	
-	LICK_THRESHOLD = 4
 	lick_data = trial['lick'].tolist()
-	lick_raster = trace_to_raster(lick_data, LICK_THRESHOLD)
+	lick_raster = trace_to_raster(lick_data, lick_threshold)
 	#lick_window_list = lick_dict.values()
 	#lick_window_list_flat = [item for sublist in lick_window_list for item in sublist]
 	#lick_mean = np.mean(lick_window_list_flat)
@@ -424,7 +423,7 @@ def add_fields(df, session_obj, behavioral_code_dict):
 		df['valence_2'] = df.apply(valence_assignment, stim=2, axis=1)
 		# reindex to move 'reinforcement trial' and 'choice_trial' columns after 'condition' key
 		df['valence_not_chosen'] = df.apply(valence_not_chosen, stim=1, axis=1)
-	df['lick_raster'] = df.apply(lick_window, axis=1)
+	df['lick_raster'] = df.apply(lick_window, lick_threshold=session_obj.lick_threshold, axis=1)
 	df['DEM_raster'] = df.apply(DEM_window, axis=1)
 	df['trial_bins'] = df.apply(trial_bins, axis=1)
 	df['trial_in_block'] = trial_in_block(df)

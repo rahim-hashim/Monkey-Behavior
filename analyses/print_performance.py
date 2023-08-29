@@ -103,6 +103,7 @@ def reaction_time_choice(session_df):
   for valence in sorted(session_df_choice['valence'].unique()):
     session_df_choice_valence = session_df_choice[session_df_choice['valence'] == valence]
     print(' Valence: {}'.format(valence))
+    print('   Reaction Time: {}'.format(round(np.mean(session_df_choice_valence['Reaction Time']), 3)))
     for v_not_chosen in sorted(session_df_choice_valence['valence_not_chosen'].unique()):
       print('   Valence Not Chosen: {}'.format(v_not_chosen), 
             round(np.mean(session_df_choice_valence[session_df_choice_valence['valence_not_chosen'] == v_not_chosen]['Reaction Time']), 3),

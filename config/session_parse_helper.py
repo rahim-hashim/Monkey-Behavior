@@ -287,7 +287,8 @@ def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 			try: # new fields in airpuff_container_1
 				airpuff_mag = float(airpuff_container_1['airpuff_mag'][t_index])
 				session_dict['airpuff_mag_1'].append(airpuff_mag)
-				num_pulses = float(airpuff_container_1['num_pulses'][t_index])
+				num_pulses = float(airpuff_container_1['num_pulses_1'][t_index])
+				session_dict['num_pulses_1'].append(num_pulses)
 			except:
 				pass
 		if 'airpuff_container_2' in locals():
@@ -298,7 +299,8 @@ def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 			try:
 				airpuff_mag = float(airpuff_container_2['airpuff_mag'][t_index])
 				session_dict['airpuff_mag_2'].append(airpuff_mag)
-				num_pulses = float(airpuff_container_2['num_pulses'][t_index])
+				num_pulses = float(airpuff_container_2['num_pulses_2'][t_index])
+				session_dict['num_pulses_2'].append(num_pulses)
 			except:
 				pass
 
@@ -347,7 +349,7 @@ def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 		except:
 			if t_index == 0:
 				print('  Missing photodiode data.')
-			session_dict['photodiote'].append(np.nan) # no photodiode data
+			session_dict['photodiode'].append(np.nan) # no photodiode data
 
 		# trial start time (relative to session start)
 		trial_start_time = float(trial_data['AbsoluteTrialStartTime'][()][0][0])
@@ -401,5 +403,10 @@ def session_parser(session, trial_list, trial_record, date_input, monkey_input):
 	print('  Complete.')
 	print('    Correct trials: {}'.format(np.sum(session_dict['correct'])))
 	print('    Errored trials: {}'.format(np.sum(session_dict['error'])))
-
+	# Session time
+	session_start = session_dict['trial_datetime_start'][0]
+	session_end = session_dict['trial_datetime_end'][-1]
+	session_time = session_end - session_start
+	print('    Session Length: ', str(datetime.utcfromtimestamp(session_time.total_seconds()).strftime('%H:%M:%S')))
+	
 	return session_dict, error_dict, behavioral_code_dict
